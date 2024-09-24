@@ -7,7 +7,7 @@ def baca_file(nama_file):
         return None
 
 def main():
-    nama_file = input("Masukkan nama file (termasuk ekstensi, misal data.txt): ")
+    nama_file = input("Masukkan nama file txt/csv: ")
     isi_file = baca_file(nama_file)
     
     if isi_file is not None:
