@@ -7,11 +7,11 @@ def baca_file(nama_file):
         return None
 
 def parse_array(data):
-    # Coba pisahkan berdasarkan koma
+    #misah berdasarkan koma
     if ',' in data:
         array = [item.strip() for item in data.split(',')]
     else:
-        # Pisahkan berdasarkan baris baru
+        #misahin berdasarkan baris baru
         array = [item.strip() for item in data.splitlines() if item.strip()]
     return array
 
