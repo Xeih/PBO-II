@@ -1,4 +1,4 @@
-from syeh import baca_file, parse_array, parse_dictionary
+from fungsi import baca_file, parse_array, parse_dictionary
 
 def main():
     while True:
