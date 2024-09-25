@@ -1,5 +1,3 @@
-# main.py
-
 from syeh import baca_file, parse_array, parse_dictionary
 
 def main():
