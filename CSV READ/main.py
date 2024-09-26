@@ -1,5 +1,5 @@
 from fungsi import baca_file, parse_array, parse_dictionary
-#ini saya edit
+#ini saya hapus
 def main():
     while True:
         nama_file = input("Masukkan nama file txt/csv: ")
