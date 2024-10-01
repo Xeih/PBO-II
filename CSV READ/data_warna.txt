@@ -1,0 +1,5 @@
+ID_DATA
+1:Biru
+2:Coklat
+3:Pink
+4:Merah
