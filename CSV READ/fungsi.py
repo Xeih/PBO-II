@@ -1,4 +1,5 @@
 import os
+
 def baca_file(nama_file):
     try:
         with open(nama_file, 'r') as file:
@@ -65,40 +66,72 @@ def baca_id_terakhir(nama_file):
             last_line = lines[-1].strip()
             if ':' in last_line:
                 return int(last_line.split(':')[0])
+    return 0
 
 def data_mobil():
     file_output = 'data_mobil.txt'
-
+    
     warna_data = baca_file('data_warna.txt')
     if warna_data is None:
-        print("File data warna tidak ditemukan")
-        
+        print("File data warna tidak ditemukan.")
+        return
     warna_dict = parse_dictionary(warna_data)
 
     merek_data = baca_file('data_merek.txt')
-    if merek_data is None :
-        print ("file ddata merek tidak ditemukan")
-
+    if merek_data is None:
+        print("File data merek tidak ditemukan.")
+        return
     merek_dict = parse_dictionary(merek_data)
 
     id_terakhir = baca_id_terakhir(file_output)
-
     
+    while True:
+        try:
+            id_merek = input("Masukkan nomor merek: ")
+            if id_merek not in merek_dict:
+                print("Nomor merek tidak valid. Silakan coba lagi.")
+                continue
+            
+            id_warna = input("Masukkan nomor warna: ")
+            if id_warna not in warna_dict:
+                print("Nomor warna tidak valid. Silakan coba lagi.")
+                continue
+            
+            merek = merek_dict[id_merek]
+            warna = warna_dict[id_warna]
+            id_mobil = id_terakhir + 1
+            
+            # Simpan hasil ke file
+            mode = 'a' if os.path.exists(file_output) else 'w'
+            with open(file_output, mode) as file:
+                if mode == 'w':
+                    file.write("ID_MOBIL\n")
+                file.write(f"{id_mobil}:{merek} {warna}\n")
+            
+            print(f"Data mobil berhasil disimpan dengan ID: {id_mobil}")
+            return f"{id_mobil}:{merek} {warna}"
+        
+        except ValueError:
+            print("Input tidak valid. Harap masukkan angka.")
 
-
+def tulis_kembali_data(nama_file, data_dict, jenis_data):
+    with open(nama_file, 'w') as file:
+        file.write(f"ID_{jenis_data.upper()}\n")  # Tulis header
+        for id_item, info_item in data_dict.items():
+            file.write(f"{id_item}:{info_item}\n")
 
 def hapus_data(nama_file):
-
     if not os.path.exists(nama_file):
         print(f"File {nama_file} tidak ditemukan.")
         return
+
     data = baca_file(nama_file)
     if data is None:
         print(f"Gagal membaca file {nama_file}.")
         return
+
     data_dict = parse_dictionary(data)
 
-    #Mengetahui Jenis Data apa yang dihapus
     jenis_data = "item"
     if "warna" in nama_file.lower():
         jenis_data = "warna"
@@ -107,7 +140,6 @@ def hapus_data(nama_file):
     elif "mobil" in nama_file.lower():
         jenis_data = "mobil"
 
-    #Menampilkan list data yang ada
     print(f"Data {jenis_data} yang tersedia:")
     for id_item, info_item in data_dict.items():
         print(f"ID: {id_item}, {jenis_data.capitalize()}: {info_item}")
@@ -117,14 +149,9 @@ def hapus_data(nama_file):
     if id_hapus not in data_dict:
         print(f"ID {id_hapus} tidak ditemukan.")
         return
-    #Menhapus data dan menulis kembali data yang ada
+
     del data_dict[id_hapus]
+
     tulis_kembali_data(nama_file, data_dict, jenis_data)
 
     print(f"Data {jenis_data} dengan ID {id_hapus} berhasil dihapus.")
-
-def tulis_kembali_data(nama_file, data_dict, jenis_data):
-    with open(nama_file, 'w') as file:#Membuka File dengan mode "Write" 
-        file.write(f"ID_{jenis_data.upper()}\n")  # Tulis header
-        for id_item, info_item in data_dict.items():
-            file.write(f"{id_item}:{info_item}\n")

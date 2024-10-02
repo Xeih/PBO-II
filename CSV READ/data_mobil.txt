@@ -1,5 +1,1 @@
 ID_MOBIL
-1:Audi Kuning
-2:BMW Biru
-3:BMW Merah 
-4:Porchee Pink

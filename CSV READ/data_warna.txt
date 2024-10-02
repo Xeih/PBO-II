@@ -1,5 +1,4 @@
-ID_DATA
+ID_WARNA
 1:Biru
 2:Coklat
 3:Pink
-4:Merah

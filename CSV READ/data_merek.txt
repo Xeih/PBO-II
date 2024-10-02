@@ -1,7 +1,4 @@
-ID_DATA
+ID_MEREK
 1:Honda
 2:Mercy
 3:BMW
-4:Yamaha
-5:Lambow
-6:Porchee
