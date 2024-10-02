@@ -35,26 +35,6 @@ def parse_dictionary(data):
         dict_result[key.strip()] = value.strip()
     return dict_result
 
-def tambah_data(nama_file):
-    #membaca file untuk mencari ID terakhir
-    try:
-        with open(nama_file, 'r') as file:
-            lines = file.readlines()
-            if len(lines) > 1:  #pastikan file tidak kosong dan memiliki header
-                #cari ID terakhir dari data
-                last_id = max(int(line.split(':')[0]) for line in lines[1:] if ':' in line)
-            else:
-                last_id = 0
-    except FileNotFoundError:
-        print("File Tidak Ditemukan")
-    #minta input dari pengguna untuk nama warna
-    value = input("Masukkan nama data: ") 
-    #metentukan ID baru
-    new_id = last_id + 1   
-    #menulis ID dan warna baru ke dalam file
-    with open(nama_file, 'a') as file:
-        file.write(f"{new_id}:{value}\n")   
-    print(f"Data '{new_id}:{value}' berhasil ditambahkan ke {nama_file}")
 
 def hapus_data(nama_file):
 
