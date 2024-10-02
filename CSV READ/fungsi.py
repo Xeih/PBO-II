@@ -56,6 +56,35 @@ def tambah_data(nama_file):
         file.write(f"{new_id}:{value}\n")   
     print(f"Data '{new_id}:{value}' berhasil ditambahkan ke {nama_file}")
 
+def baca_id_terakhir(nama_file):
+    if not os.path.exists(nama_file):
+        return 0
+    with open(nama_file, 'r') as file:
+        lines = file.readlines()
+        if len(lines) > 1:
+            last_line = lines[-1].strip()
+            if ':' in last_line:
+                return int(last_line.split(':')[0])
+
+def data_mobil():
+    file_output = 'data_mobil.txt'
+
+    warna_data = baca_file('data_warna.txt')
+    if warna_data is None:
+        print("File data warna tidak ditemukan")
+        
+    warna_dict = parse_dictionary(warna_data)
+
+    merek_data = baca_file('data_merek.txt')
+    if merek_data is None :
+        print ("file ddata merek tidak ditemukan")
+
+    merek_dict = parse_dictionary(merek_data)
+
+    id_terakhir = baca_id_terakhir(file_output)
+
+    
+
 
 
 def hapus_data(nama_file):
