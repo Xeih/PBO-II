@@ -57,24 +57,49 @@ class DataItem:
         content += "\n".join(f"{id_item}:{info_item}" for id_item, info_item in data_dict.items())
         self.file_handler.editfile(self.file_name, content)
 
-def data_mobil():
-    file_output = 'data_mobil.txt'
-    
-    warna_data = baca_file('data_warna.txt')
-    if warna_data is None:
-        print("File data warna tidak ditemukan.")
-        return
-    warna_dict = parse_dictionary(warna_data)
+class Warna(DataItem):
+    def __ini__(self):
+        super().__init__('data_warna.txt', 'warna')
 
-    merek_data = baca_file('data_merek.txt')
-    if merek_data is None:
-        print("File data merek tidak ditemukan.")
-        return
-    merek_dict = parse_dictionary(merek_data)
+    def list_warna(self):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
 
-    id_terakhir = baca_id_terakhir(file_output)
+    def tambah_warna(self, warna):
+        return self_data(warna)
+
+    def hapus_warna(self, id_warna):
+        return self.hapus_data(id_warna)
+
+class Merek(DataItem):
+    def __init__(self):
+        super().__init__('data_merek.txt', 'merek')
+
+    def list_merek(self):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        return data_dict
+
+    def tambah_merek(self, merek):
+        return self.tambah_data(merek)
+
+    def hapus_merek(self, id_merek):
+        return self.hapus_data(id_merek)
+
+
+class Mobil(DataItem):
+    def __init__(self):
+        super().__init__('data_mobil.txt', 'mobil')
+        self.data_warna = Warna()
+        self.data_merek = Merek()
+
+    def list_mobil(self):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        return data_dict
+
+
+
+
     
-    while True:
+    #while True:
         try:
             id_merek = input("Masukkan nomor merek: ")
             if id_merek not in merek_dict:
