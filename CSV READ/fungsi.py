@@ -63,6 +63,7 @@ class Warna(DataItem):
 
     def list_warna(self):
         data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        return data_dict
 
     def tambah_warna(self, warna):
         return self.tambah_data(warna)
