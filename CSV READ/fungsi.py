@@ -1,72 +1,61 @@
 import os
+from pathlib import Path
 
-def baca_file(nama_file):
-    try:
-        with open(nama_file, 'r') as file:
-            data = file.read()
-        return data
-    except FileNotFoundError:
-        return None
+class FileHandler:
+    def bacafile(self, nama_file):
+        try:
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            file_path = Path(current_directory) / nama_file
+            with open(file_path, 'r') as file:
+                return file.read()
+        except FileNotFoundError:
+            return None
 
-def parse_array(data):
-    #misah berdasarkan koma
-    if ',' in data:
-        array = [item.strip() for item in data.split(',')]
-    else:
-        #misahin berdasarkan baris baru
-        array = [item.strip() for item in data.splitlines() if item.strip()]
-    return array
+    def editfile(self, nama_file, data, mode='w'):
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        file_path = Path(current_directory) / nama_file
+        with open(file_path, mode) as file:
+            file.write(data)
 
-def parse_dictionary(data):
-    dict_result = {}
-    lines = data.splitlines()   
-    for line in lines[1:]:
-        if ':' in line:
-            key, value = line.split(':')
-            dict_result[key.strip()] = value.strip()
-    if '=>' in data:
-        pairs = data.split(',')
-    else:
-        pairs = []
-    for pair in pairs:
-        if '=>' in pair:
-            key, value = pair.split('=>')
-        else:
-            continue
-        dict_result[key.strip()] = value.strip()
-    return dict_result
 
-def tambah_data(nama_file):
-    # Membaca file untuk mencari ID terakhir
-    try:
-        with open(nama_file, 'r') as file:
-            lines = file.readlines()
-            if len(lines) > 1:  # Pastikan file tidak kosong dan memiliki header
-                # Cari ID terakhir dari data
-                last_id = max(int(line.split(':')[0]) for line in lines[1:] if ':' in line)
-            else:
-                last_id = 0
-    except FileNotFoundError:
-        print("File Tidak Ditemukan")
-    # Meminta input dari pengguna untuk nama warna
-    value = input("Masukkan nama data: ") 
-    # Tentukan ID baru
-    new_id = last_id + 1   
-    # Menulis ID dan warna baru ke dalam file
-    with open(nama_file, 'a') as file:
-        file.write(f"{new_id}:{value}\n")   
-    print(f"Data '{new_id}:{value}' berhasil ditambahkan ke {nama_file}")
+class DataItem:
+    def __init__(self, file_name, jenis_data):
+        self.file_name = file_name
+        self.jenis_data = jenis_data
+        self.file_handler = FileHandler()
 
-def baca_id_terakhir(nama_file):
-    if not os.path.exists(nama_file):
-        return 0
-    with open(nama_file, 'r') as file:
-        lines = file.readlines()
-        if len(lines) > 1:
-            last_line = lines[-1].strip()
-            if ':' in last_line:
-                return int(last_line.split(':')[0])
-    return 0
+    def parse_dictionary(self, data):
+        dict_result = {}
+        lines = data.splitlines()
+        for line in lines[1:]:
+            if ':' in line:
+                key, value = line.split(':', 1)
+                dict_result[key.strip()] = value.strip()
+        return dict_result
+
+    def tambah_data(self, value):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        new_id = max(map(int, data_dict.keys() or [0])) + 1
+        data_dict[str(new_id)] = value
+        self._tulis_kembali_data(data_dict)
+        return new_id
+
+    def hapus_data(self, id_hapus):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        if id_hapus in data_dict:
+            del data_dict[id_hapus]
+            self._tulis_kembali_data(data_dict)
+            return True
+        return False
+
+    def tampilkan_data(self, data_dict):
+        for key, value in data_dict.items():
+            print(f"{key}: {value}")
+
+    def _tulis_kembali_data(self, data_dict):
+        content = f"ID_{self.jenis_data.upper()}\n"
+        content += "\n".join(f"{id_item}:{info_item}" for id_item, info_item in data_dict.items())
+        self.file_handler.editfile(self.file_name, content)
 
 def data_mobil():
     file_output = 'data_mobil.txt'
@@ -114,44 +103,3 @@ def data_mobil():
         except ValueError:
             print("Input tidak valid. Harap masukkan angka.")
 
-def tulis_kembali_data(nama_file, data_dict, jenis_data):
-    with open(nama_file, 'w') as file:
-        file.write(f"ID_{jenis_data.upper()}\n")  # Tulis header
-        for id_item, info_item in data_dict.items():
-            file.write(f"{id_item}:{info_item}\n")
-
-def hapus_data(nama_file):
-    if not os.path.exists(nama_file):
-        print(f"File {nama_file} tidak ditemukan.")
-        return
-
-    data = baca_file(nama_file)
-    if data is None:
-        print(f"Gagal membaca file {nama_file}.")
-        return
-
-    data_dict = parse_dictionary(data)
-
-    jenis_data = "item"
-    if "warna" in nama_file.lower():
-        jenis_data = "warna"
-    elif "merek" in nama_file.lower():
-        jenis_data = "merek"
-    elif "mobil" in nama_file.lower():
-        jenis_data = "mobil"
-
-    print(f"Data {jenis_data} yang tersedia:")
-    for id_item, info_item in data_dict.items():
-        print(f"ID: {id_item}, {jenis_data.capitalize()}: {info_item}")
-
-    id_hapus = input(f"Masukkan ID {jenis_data} yang akan dihapus: ")
-
-    if id_hapus not in data_dict:
-        print(f"ID {id_hapus} tidak ditemukan.")
-        return
-
-    del data_dict[id_hapus]
-
-    tulis_kembali_data(nama_file, data_dict, jenis_data)
-
-    print(f"Data {jenis_data} dengan ID {id_hapus} berhasil dihapus.")
