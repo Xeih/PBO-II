@@ -65,7 +65,7 @@ class Warna(DataItem):
         data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
 
     def tambah_warna(self, warna):
-        return self_data(warna)
+        return self.tambah_data(warna)
 
     def hapus_warna(self, id_warna):
         return self.hapus_data(id_warna)
@@ -94,37 +94,32 @@ class Mobil(DataItem):
     def list_mobil(self):
         data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
         return data_dict
+    
+    def tambah_mobil(self, id_merek, id_warna):
+        warna_dict = self.data_warna.parse_dictionary(self.data_warna.file_handler.bacafile(self.data_warna.file_name) or "")
+        merek_dict = self.data_merek.parse_dictionary(self.data_merek.file_handler.bacafile(self.data_merek.file_name) or "")
+
+        if id_merek not in merek_dict:
+            raise ValueError("Nomor merek tidak valid.")
+        if id_warna not in warna_dict:
+            raise ValueError("Nomor warna tidak valid.")
+
+        merek = merek_dict[id_merek]
+        warna = warna_dict[id_warna]
+
+        mobil_data = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        new_id = max(map(int, mobil_data.keys() or [0])) + 1
+        mobil_data[str(new_id)] = f"{merek} {warna}"
+
+        self._tulis_kembali_data(mobil_data)
+        return f"{new_id}:{merek} {warna}"
+
+    def hapus_mobil(self, id_mobil):
+        return self.hapus_data(id_mobil)
 
 
 
 
     
-    #while True:
-        try:
-            id_merek = input("Masukkan nomor merek: ")
-            if id_merek not in merek_dict:
-                print("Nomor merek tidak valid. Silakan coba lagi.")
-                continue
-            
-            id_warna = input("Masukkan nomor warna: ")
-            if id_warna not in warna_dict:
-                print("Nomor warna tidak valid. Silakan coba lagi.")
-                continue
-            
-            merek = merek_dict[id_merek]
-            warna = warna_dict[id_warna]
-            id_mobil = id_terakhir + 1
-            
-            # Simpan hasil ke file
-            mode = 'a' if os.path.exists(file_output) else 'w'
-            with open(file_output, mode) as file:
-                if mode == 'w':
-                    file.write("ID_MOBIL\n")
-                file.write(f"{id_mobil}:{merek} {warna}\n")
-            
-            print(f"Data mobil berhasil disimpan dengan ID: {id_mobil}")
-            return f"{id_mobil}:{merek} {warna}"
-        
-        except ValueError:
-            print("Input tidak valid. Harap masukkan angka.")
+    
 
