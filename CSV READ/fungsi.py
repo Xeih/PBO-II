@@ -58,7 +58,7 @@ class DataItem:
         self.file_handler.editfile(self.file_name, content)
 
 class Warna(DataItem):
-    def __ini__(self):
+    def __init__(self):
         super().__init__('data_warna.txt', 'warna')
 
     def list_warna(self):
