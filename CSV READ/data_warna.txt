@@ -1,4 +1,4 @@
 ID_WARNA
 1:Biru
-2:Coklat
+2:Kuning
 3:Pink

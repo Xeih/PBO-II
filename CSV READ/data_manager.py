@@ -1,4 +1,4 @@
-from fungsi import Mobil,Merek,Warna
+from fungsi import Mobil, Merek, Warna
 
 class DataManager:
     def __init__(self):
@@ -34,11 +34,21 @@ class DataManager:
         elif data_type == 'mobil':
             return data_object.hapus_mobil(item_id)
 
+    def edit_data(self, data_type, item_id, new_value):
+        data_object = self.get_data_object(data_type)
+        if data_type == 'warna':
+            return data_object.edit_warna(item_id, new_value)
+        elif data_type == 'merek':
+            return data_object.edit_merek(item_id, new_value)
+        elif data_type == 'mobil':
+            nama_mobil, id_merek, id_warna = new_value.split(':')
+            return data_object.edit_mobil(item_id, nama_mobil, id_merek, id_warna)
+
     def tambah_warna(self, warna_baru):
         return self.warna.tambah_warna(warna_baru)
         
     def tambah_merek(self, merek_baru):
         return self.merek.tambah_merek(merek_baru)
         
-    def tambah_mobil(self, merek, warna):
-        return self.mobil.tambah_mobil(merek, warna)
+    def tambah_mobil(self, nama_mobil, id_merek, id_warna):
+        return self.mobil.tambah_mobil(nama_mobil, id_merek, id_warna)

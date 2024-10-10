@@ -16,7 +16,7 @@ class FileHandler:
         file_path = Path(current_directory) / nama_file
         with open(file_path, mode) as file:
             file.write(data)
-
+        print(f"Data written to {file_path}")  # Debug print
 
 class DataItem:
     def __init__(self, file_name, jenis_data):
@@ -48,6 +48,14 @@ class DataItem:
             return True
         return False
 
+    def edit_data(self, id_edit, new_value):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        if id_edit in data_dict:
+            data_dict[id_edit] = new_value
+            self._tulis_kembali_data(data_dict)
+            return True
+        return False
+
     def tampilkan_data(self, data_dict):
         for key, value in data_dict.items():
             print(f"{key}: {value}")
@@ -71,6 +79,9 @@ class Warna(DataItem):
     def hapus_warna(self, id_warna):
         return self.hapus_data(id_warna)
 
+    def edit_warna(self, id_warna, new_warna):
+        return self.edit_data(id_warna, new_warna)
+
 class Merek(DataItem):
     def __init__(self):
         super().__init__('data_merek.txt', 'merek')
@@ -85,42 +96,66 @@ class Merek(DataItem):
     def hapus_merek(self, id_merek):
         return self.hapus_data(id_merek)
 
+    def edit_merek(self, id_merek, new_merek):
+        return self.edit_data(id_merek, new_merek)
 
 class Mobil(DataItem):
     def __init__(self):
-        super().__init__('data_mobil.txt', 'mobil')
+        super().__init__('data_mobil.txt', 'NAMA_MOBIL')
         self.data_warna = Warna()
         self.data_merek = Merek()
 
     def list_mobil(self):
-        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
-        return data_dict
-    
-    def tambah_mobil(self, id_merek, id_warna):
-        warna_dict = self.data_warna.parse_dictionary(self.data_warna.file_handler.bacafile(self.data_warna.file_name) or "")
-        merek_dict = self.data_merek.parse_dictionary(self.data_merek.file_handler.bacafile(self.data_merek.file_name) or "")
+        data = self.file_handler.bacafile(self.file_name)
+        if not data:
+            return {}
+        lines = data.splitlines()
+        mobil_dict = {}
+        for line in lines[1:]:  # Skip the header line
+            parts = line.split(':')
+            if len(parts) == 4:
+                id_mobil, nama_mobil, id_merek, id_warna = parts
+                mobil_dict[id_mobil] = f"{nama_mobil}:{id_merek}:{id_warna}"
+        return mobil_dict
+
+    def tambah_mobil(self, nama_mobil, id_merek, id_warna):
+        warna_dict = self.data_warna.list_warna()
+        merek_dict = self.data_merek.list_merek()
 
         if id_merek not in merek_dict:
             raise ValueError("Nomor merek tidak valid.")
         if id_warna not in warna_dict:
             raise ValueError("Nomor warna tidak valid.")
 
-        merek = merek_dict[id_merek]
-        warna = warna_dict[id_warna]
-
-        mobil_data = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
-        new_id = max(map(int, mobil_data.keys() or [0])) + 1
-        mobil_data[str(new_id)] = f"{merek} {warna}"
-
-        self._tulis_kembali_data(mobil_data)
-        return f"{new_id}:{merek} {warna}"
+        return self.tambah_data(f"{nama_mobil}:{id_merek}:{id_warna}")
 
     def hapus_mobil(self, id_mobil):
         return self.hapus_data(id_mobil)
 
+    def edit_mobil(self, id_mobil, nama_mobil, id_merek, id_warna):
+        warna_dict = self.data_warna.list_warna()
+        merek_dict = self.data_merek.list_merek()
 
+        if id_merek not in merek_dict:
+            raise ValueError("Nomor merek tidak valid.")
+        if id_warna not in warna_dict:
+            raise ValueError("Nomor warna tidak valid.")
+
+        return self.edit_data(id_mobil, f"{nama_mobil}:{id_merek}:{id_warna}")
+
+    def get_detail_mobil(self, id_mobil):
+        mobil_dict = self.list_mobil()
+        if id_mobil in mobil_dict:
+            nama_mobil, id_merek, id_warna = mobil_dict[id_mobil].split(':')
+            merek = self.data_merek.list_merek().get(id_merek, "Merek tidak ditemukan")
+            warna = self.data_warna.list_warna().get(id_warna, "Warna tidak ditemukan")
+            return {
+                'nama_mobil': nama_mobil,
+                'merek': merek,
+                'warna': warna
+            }
+        return None
 
 
     
     
-

@@ -8,7 +8,7 @@ class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Data Mobil")
-        self.geometry("500x500")
+        self.geometry("400x400")
         self.data_manager = DataManager()
         self.current_data_type = 'warna'
 
@@ -24,35 +24,45 @@ class Application(tk.Tk):
         self.warna_tambah_frame = tk.Frame(self)
         self.merk_tambah_frame = tk.Frame(self)
         self.mobil_tambah_frame = tk.Frame(self)
+        self.detail_frame = tk.Frame(self)
 
     def create_widgets(self):
         # Home frame widgets
-        canvas = Canvas(self.home_frame, width=500, height=150, bg="#FFA559", highlightthickness=0)
-        canvas.create_text(250, 75, text="DATA MOBIL", font=("impact", 24), fill="white")
+        canvas = Canvas(self.home_frame, width=400, height=150, bg="#FFA559", highlightthickness=0)
+        canvas.create_text(200, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="white")
         canvas.pack()
 
         frame = tk.Frame(self.home_frame)
         frame.pack(pady=20)
 
-        button_mobil = tk.Button(frame, text="Mobil", font=("arial", 16, 'bold'), compound=tk.TOP, bg="green", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
+        button_mobil = tk.Button(frame, text="Mobil", font=("Helvetica", 12), compound=tk.TOP, bg="green", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
         button_mobil.grid(row=0, column=0, padx=20)
 
-        button_merk = tk.Button(frame, text="Merk", font=("arial", 16, 'bold'), compound=tk.TOP, bg="purple", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
+        button_merk = tk.Button(frame, text="Merk", font=("Helvetica", 12), compound=tk.TOP, bg="purple", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
         button_merk.grid(row=0, column=1, padx=20)
 
-        button_warna = tk.Button(frame, text="Warna", font=("arial", 16, 'bold'), compound=tk.TOP, bg="red", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
+        button_warna = tk.Button(frame, text="WARNA", font=("Helvetica", 12), compound=tk.TOP, bg="red", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
         button_warna.grid(row=0, column=2, padx=20)
+
+
 
         # Data frames (mobil, warna, merk)
         for frame, title in [(self.mobil_frame, "List Mobil"), (self.warna_frame, "List Warna"), (self.merk_frame, "List Merk")]:
-            label = tk.Label(frame, text=title,font=("impact", 16))
+            label = tk.Label(frame, text=title, font=("Helvetica", 16))
             label.pack(pady=10)
             
             listbox = tk.Listbox(frame, width=40, height=10)
             listbox.pack(pady=10)
-            
+
+            edit_button = tk.Button(frame, text="Edit", command=lambda f=frame: self.show_edit_dialog(f))
+            edit_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+            if frame == self.mobil_frame:
+                detail_button = tk.Button(frame, text="Tampilkan Detail", command=self.show_mobil_detail)
+                detail_button.pack(pady=5)
+                
             back_button = tk.Button(frame, text="Kembali", command=self.show_home)
-            back_button.pack(pady=15)
+            back_button.pack(pady=10)
             
             if frame == self.warna_frame:
                 add_button = tk.Button(frame, text="+", command=self.show_tambah_warna)
@@ -104,6 +114,9 @@ class Application(tk.Tk):
         # Mobil tambah frame
         label_tambah = tk.Label(self.mobil_tambah_frame, text="Tambah Mobil Baru", font=("Helvetica", 12))
         label_tambah.pack(pady=5)
+        
+        self.nama_mobil_entry = tk.Entry(self.mobil_tambah_frame, width=30)
+        self.nama_mobil_entry.pack(pady=5)
 
         self.merek_var = tk.StringVar()
         self.warna_var = tk.StringVar()
@@ -126,21 +139,42 @@ class Application(tk.Tk):
         back_button = tk.Button(self.mobil_tambah_frame, text="Kembali", command=lambda: self.show_data('mobil'))
         back_button.pack(pady=10)
 
+        # Detail frame
+        self.detail_label = tk.Label(self.detail_frame, text="", font=("Helvetica", 12))
+        self.detail_label.pack(pady=10)
+
+        back_button = tk.Button(self.detail_frame, text="Kembali", command=self.show_data)
+        back_button.pack(pady=10)
+
+        self.edit_frame = tk.Frame(self)
+        label_edit = tk.Label(self.edit_frame, text="Edit Data", font=("Helvetica", 12))
+        label_edit.pack(pady=5)
+        
+        self.edit_entry = tk.Entry(self.edit_frame, width=30)
+        self.edit_entry.pack(pady=5)
+        
+        save_button = tk.Button(self.edit_frame, text="Simpan", command=self.save_edit)
+        save_button.pack(pady=10)
+        
+        back_button = tk.Button(self.edit_frame, text="Kembali", command=self.show_data)
+        back_button.pack(pady=10)
+
     def show_home(self):
         self.hide_all_frames()
         self.home_frame.pack()
 
-    def show_data(self, data_type):
+    def show_data(self, data_type=None):
         self.hide_all_frames()
-        self.current_data_type = data_type
-        if data_type == 'mobil':
+        if data_type:
+            self.current_data_type = data_type
+        if self.current_data_type == 'mobil':
             frame = self.mobil_frame
-        elif data_type == 'warna':
+        elif self.current_data_type == 'warna':
             frame = self.warna_frame
-        elif data_type == 'merek':
+        elif self.current_data_type == 'merek':
             frame = self.merk_frame
         frame.pack()
-        self.update_listbox(data_type)
+        self.update_listbox(self.current_data_type)
 
     def show_tambah_warna(self):
         self.hide_all_frames()
@@ -156,7 +190,7 @@ class Application(tk.Tk):
         self.update_options()
 
     def hide_all_frames(self):
-        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame):
+        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame, self.detail_frame):
             frame.pack_forget()
 
     def update_listbox(self, data_type):
@@ -167,10 +201,14 @@ class Application(tk.Tk):
         listbox.delete(0, tk.END)
         data_dict = self.data_manager.list_data(data_type)
         for key, value in data_dict.items():
-            listbox.insert(tk.END, f"{key}: {value}")
+            if data_type == 'mobil':
+                nama_mobil = value.split(":")[0]
+                listbox.insert(tk.END, f"{key}: {nama_mobil}")
+            else:
+                listbox.insert(tk.END, f"{key}: {value}")
 
     def update_options(self):
-        # Update options for merek and warna in tambah mobil frame
+        # Update options for merek dan warna in tambah mobil frame
         self.merek_option['menu'].delete(0, 'end')
         for id_merek, merek in self.data_manager.list_data('merek').items():
             self.merek_option['menu'].add_command(label=merek, command=tk._setit(self.merek_var, id_merek))
@@ -200,14 +238,18 @@ class Application(tk.Tk):
             messagebox.showinfo("Sukses", f"Merek {merek_baru} berhasil ditambahkan!")
     
     def tambah_mobil(self):
+        nama_mobil = self.nama_mobil_entry.get()
         id_merek = self.merek_var.get()
         id_warna = self.warna_var.get()
-        if id_merek.strip() == "" or id_warna.strip() == "":
-            messagebox.showerror("Error", "Merek dan Warna tidak boleh kosong!")
+        if nama_mobil.strip() == "" or id_merek.strip() == "" or id_warna.strip() == "":
+            messagebox.showerror("Error", "Nama mobil, merek, dan warna tidak boleh kosong!")
         else:
             try:
-                result = self.data_manager.mobil.tambah_mobil(id_merek, id_warna)
+                result = self.data_manager.tambah_mobil(nama_mobil, id_merek, id_warna)
                 self.update_listbox('mobil')
+                self.nama_mobil_entry.delete(0, tk.END)
+                self.merek_var.set('')
+                self.warna_var.set('')
                 messagebox.showinfo("Sukses", f"Mobil berhasil ditambahkan: {result}")
             except ValueError as e:
                 messagebox.showerror("Error", str(e))
@@ -239,10 +281,10 @@ class Application(tk.Tk):
         label = tk.Label(confirm_window, text=f"Apakah Anda yakin ingin menghapus {data_type} {item_name}?", wraplength=250)
         label.pack(pady=20)
         
-        yes_button = tk.Button(confirm_window, text="Yes", bg="green", fg="white", command=lambda: self.delete_item(confirm_window, data_type, item_id, item_name))
+        yes_button = tk.Button(confirm_window, text="Yes", command=lambda: self.delete_item(confirm_window, data_type, item_id, item_name))
         yes_button.pack(side=tk.LEFT, padx=20, pady=20)
         
-        no_button = tk.Button(confirm_window, text="No", bg="red", fg="white", command=confirm_window.destroy)
+        no_button = tk.Button(confirm_window, text="No", command=confirm_window.destroy)
         no_button.pack(side=tk.RIGHT, padx=20, pady=20)
 
     def delete_item(self, confirm_window, data_type, item_id, item_name):
@@ -252,6 +294,78 @@ class Application(tk.Tk):
             messagebox.showinfo("Sukses", f"{data_type.capitalize()} {item_name} berhasil dihapus!")
         else:
             messagebox.showerror("Error", f"Gagal menghapus {data_type} {item_name}.")
+
+    def show_detail(self, event):
+        listbox = event.widget
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            item_id = selected_item.split(":")[0].strip()
+            details = self.data_manager.mobil.get_detail_mobil(item_id)
+            if details:
+                detail_text = f"Nama Mobil: {details['nama_mobil']}\nMerek: {details['merek']}\nWarna: {details['warna']}"
+                self.detail_label.config(text=detail_text)
+                self.hide_all_frames()
+                self.detail_frame.pack()
+            else:
+                messagebox.showerror("Error", "Detail mobil tidak ditemukan.")
+
+    def show_edit_dialog(self, frame):
+        listbox = frame.winfo_children()[1]
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            item_id, item_value = selected_item.split(":", 1)
+            item_id = item_id.strip()
+            item_value = item_value.strip()
+            
+            self.current_edit_id = item_id
+            self.edit_entry.delete(0, tk.END)
+            self.edit_entry.insert(0, item_value)
+            
+            self.hide_all_frames()
+            self.edit_frame.pack()
+        else:
+            messagebox.showwarning("Peringatan", f"Silakan pilih item yang ingin diedit.")
+
+    def save_edit(self):
+        new_value = self.edit_entry.get()
+        if new_value.strip() == "":
+            messagebox.showerror("Error", "Nilai baru tidak boleh kosong!")
+        else:
+            try:
+                self.data_manager.edit_data(self.current_data_type, self.current_edit_id, new_value)
+                self.update_listbox(self.current_data_type)
+                messagebox.showinfo("Sukses", f"Data berhasil diubah menjadi: {new_value}")
+                self.show_data()
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+
+    def hide_all_frames(self):
+        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, 
+                      self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame, 
+                      self.detail_frame, self.edit_frame):
+            frame.pack_forget()
+
+    def show_mobil_detail(self):
+        listbox = self.mobil_frame.winfo_children()[1]
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            item_id = selected_item.split(":")[0].strip()
+            details = self.data_manager.mobil.get_detail_mobil(item_id)
+            if details:
+                detail_text = f"Nama Mobil: {details['nama_mobil']}\nMerek: {details['merek']}\nWarna: {details['warna']}"
+                self.detail_label.config(text=detail_text)
+                self.hide_all_frames()
+                self.detail_frame.pack()
+            else:
+                messagebox.showerror("Error", "Detail mobil tidak ditemukan.")
+        else:
+            messagebox.showwarning("Peringatan", "Silakan pilih mobil yang ingin dilihat detailnya.")
 
 if __name__ == "__main__":
     app = Application()
