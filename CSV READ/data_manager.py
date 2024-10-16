@@ -1,10 +1,11 @@
-from fungsi import Mobil, Merek, Warna
+from fungsi import Mobil, Merek, Warna, Transaksi
 
 class DataManager:
     def __init__(self):
         self.warna = Warna()
         self.merek = Merek()
         self.mobil = Mobil()
+        self.transaksi = Transaksi()
 
     def get_data_object(self, data_type):
         if data_type == 'warna':
@@ -13,6 +14,8 @@ class DataManager:
             return self.merek
         elif data_type == 'mobil':
             return self.mobil
+        elif data_type == 'transaksi':
+            return self.transaksi
         else:
             raise ValueError(f"Unknown data type: {data_type}")
 
@@ -24,6 +27,8 @@ class DataManager:
             return data_object.list_merek()
         elif data_type == 'mobil':
             return data_object.list_mobil()
+        elif data_type == 'transaksi':
+            return data_object.list_transaksi()
 
     def delete_data(self, data_type, item_id):
         data_object = self.get_data_object(data_type)
@@ -52,3 +57,9 @@ class DataManager:
         
     def tambah_mobil(self, nama_mobil, id_merek, id_warna):
         return self.mobil.tambah_mobil(nama_mobil, id_merek, id_warna)
+    
+    def tambah_transaksi(self, transaksi_data):
+        # transaksi_data should be in the format "id_mobil_jarak_tanggal"
+        return self.transaksi.tambah_transaksi(transaksi_data)
+    
+    

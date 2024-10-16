@@ -155,38 +155,31 @@ class Mobil(DataItem):
                 'warna': warna
             }
         return None
-    
-#bikin class transaksi
-class Transaksi(DataItem) :
+
+class Transaksi(DataItem):
     def __init__(self):
-        super().__init__('data_transaksi.txt')
+        super().__init__('data_transaksi.txt', 'transaksi')
 
     def list_transaksi(self):
         data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
         return data_dict
-    
-    def tambah_transaksi(self, transaksi_data):
+
+    def tambah_transaksi(self, transaksi_data):     
         return self.tambah_data(transaksi_data)
-    
+
     def hapus_transaksi(self, id_transaksi):
         return self.hapus_data(id_transaksi)
-    
+
     def edit_transaksi(self, id_transaksi, transaksi_data):
         return self.edit_data(id_transaksi, transaksi_data)
-    
+
     def get_detail_transaksi(self, id_transaksi):
         transaksi_dict = self.list_transaksi()
         if id_transaksi in transaksi_dict:
             id_mobil, jarak, tanggal = transaksi_dict[id_transaksi].split('_')
-            return{
-            'id_mobil' : id_mobil, 
-            'jarak' : jarak, 
-            'tanggal': tanggal
-        }
+            return {
+                'id_mobil': id_mobil,
+                'jarak': jarak,
+                'tanggal': tanggal
+            }
         return None
-    
-
-
-
-    
-    
