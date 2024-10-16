@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import Canvas
+from tkinter import Canvas, ttk
 from data_manager import DataManager
+from datetime import datetime
 
 
 class Application(tk.Tk):
@@ -35,14 +36,18 @@ class Application(tk.Tk):
         frame = tk.Frame(self.home_frame)
         frame.pack(pady=20)
 
-        button_mobil = tk.Button(frame, text="Mobil", font=("Helvetica", 12), compound=tk.TOP, bg="green", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
+        button_mobil = tk.Button(frame, text="MOBIL", font=("Helvetica", 12), compound=tk.TOP, bg="green", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
         button_mobil.grid(row=0, column=0, padx=20)
 
-        button_merk = tk.Button(frame, text="Merk", font=("Helvetica", 12), compound=tk.TOP, bg="purple", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
+        button_merk = tk.Button(frame, text="MERK", font=("Helvetica", 12), compound=tk.TOP, bg="purple", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
         button_merk.grid(row=0, column=1, padx=20)
 
         button_warna = tk.Button(frame, text="WARNA", font=("Helvetica", 12), compound=tk.TOP, bg="red", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
         button_warna.grid(row=0, column=2, padx=20)
+
+        frame = self.home_frame.winfo_children()[1]
+        button_transaksi = tk.Button(frame, text="Transaksi", font=("IMPACT", 12), compound=tk.TOP, bg="blue", fg="white", padx=20, pady=10, command=self.show_transaksi)
+        button_transaksi.grid(row=1, column=1, padx=20, pady=10)
 
 
 
@@ -295,6 +300,28 @@ class Application(tk.Tk):
         else:
             messagebox.showerror("Error", f"Gagal menghapus {data_type} {item_name}.")
 
+    def show_edit_dialog(self, frame):
+        listbox = frame.winfo_children()[1]
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            item_id, item_value = selected_item.split(":", 1)
+            item_id = item_id.strip()
+            item_value = item_value.strip()
+            
+            self.current_edit_id = item_id
+            
+            if self.current_data_type == 'mobil':
+                self.show_edit_mobil_dialog(item_id, item_value)
+            else:
+                self.edit_entry.delete(0, tk.END)
+                self.edit_entry.insert(0, item_value)
+                self.hide_all_frames()
+                self.edit_frame.pack()
+        else:
+            messagebox.showwarning("Peringatan", f"Silakan pilih item yang ingin diedit.")
+
     def show_detail(self, event):
         listbox = event.widget
         selected_indices = listbox.curselection()
@@ -329,6 +356,22 @@ class Application(tk.Tk):
             self.edit_frame.pack()
         else:
             messagebox.showwarning("Peringatan", f"Silakan pilih item yang ingin diedit.")
+
+    def update_edit_options(self):
+        merek_dict = self.data_manager.list_data('merek')
+        warna_dict = self.data_manager.list_data('warna')
+        
+        self.edit_merek_option['menu'].delete(0, 'end')
+        for id_merek, merek in merek_dict.items():
+            self.edit_merek_option['menu'].add_command(label=merek, command=tk._setit(self.edit_merek_var, merek))
+        
+        self.edit_warna_option['menu'].delete(0, 'end')
+        for id_warna, warna in warna_dict.items():
+            self.edit_warna_option['menu'].add_command(label=warna, command=tk._setit(self.edit_warna_var, warna))
+
+    def on_merk_select(self, *args):
+        selected_name = self.warna_var.get()
+        self.selected_merek_id = next((id for id, name in self.data_manager.list_data('merek').items() if name == selected_name), None)
 
     def save_edit(self):
         new_value = self.edit_entry.get()
