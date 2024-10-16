@@ -233,6 +233,39 @@ class Application(tk.Tk):
         tambah_button.pack(pady=10)
 
 
+
+        lihat_history_button = tk.Button(self.transaksi_frame, text="HISTORY", command=self.show_transaksi_history)
+        lihat_history_button.pack(pady=5)
+
+        back_button = tk.Button(self.transaksi_frame, text="Kembali", command=self.show_home)
+        back_button.pack(pady=10)
+
+        # Create a frame to contain the Treeview and scrollbar
+        tree_frame = tk.Frame(self.transaksi_history_frame)
+        tree_frame.pack(pady=10, fill="both", expand=True)
+
+        # Create Treeview with adjusted column widths
+        self.history_tree = ttk.Treeview(tree_frame, columns=('Tanggal', 'Mobil', 'Jarak'), show='headings')
+        self.history_tree.heading('Tanggal', text='Tanggal')
+        self.history_tree.heading('Mobil', text='Mobil')
+        self.history_tree.heading('Jarak', text='Jarak (km)')
+        
+        # Set column widths
+        self.history_tree.column('Tanggal', width=100)
+        self.history_tree.column('Mobil', width=150)
+        self.history_tree.column('Jarak', width=100)
+        
+        # Add scrollbar to the Treeview
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.history_tree.yview)
+        self.history_tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        self.history_tree.pack(side="left", fill="both", expand=True)
+
+        # Add the back button at the bottom
+        back_button = tk.Button(self.transaksi_history_frame, text="Kembali", command=self.show_transaksi)
+        back_button.pack(side="bottom", pady=10)
+
         # Create Tambah Transaksi frame
         self.tambah_transaksi_frame = tk.Frame(self)
         label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Transaksi", font=("Helvetica", 12))
@@ -491,7 +524,22 @@ class Application(tk.Tk):
         self.tambah_transaksi_frame.pack()
         self.update_mobil_options()
 
+    def show_transaksi_history(self):
+        self.hide_all_frames()
+        self.transaksi_history_frame.pack()
+        self.update_transaksi_history()
 
+    def update_transaksi_history(self):
+        # Clear existing items
+        for item in self.history_tree.get_children():
+            self.history_tree.delete(item)
+
+        # Fetch and display transaction history
+        transaksi_list = self.data_manager.list_data('transaksi')
+        for transaksi_id, transaksi_data in transaksi_list.items():
+            id_mobil, jarak, tanggal = transaksi_data.split('_')
+            nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
+            self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
 
     def update_mobil_options(self):
         mobil_dict = self.data_manager.list_data('mobil')
