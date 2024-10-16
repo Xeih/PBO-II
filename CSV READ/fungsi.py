@@ -156,6 +156,18 @@ class Mobil(DataItem):
             }
         return None
 
+class Transaksi(DataItem) :
+    def __init__(self):
+        super().__init__('data_transaksi.txt')
+
+    def list_transaksi(self):
+        data_dict = self.parse_dictionary(self.file_handler.bacafile(self.file_name) or "")
+        return data_dict
+    
+    def tambah_transaksi(self)
+    
+
+
 
     
     
