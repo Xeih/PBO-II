@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import Canvas,ttk
 from data_manager import DataManager
 from datetime import datetime
+from tkcalendar import DateEntry
 
 class Application(tk.Tk):
     def __init__(self):
@@ -193,7 +194,7 @@ class Application(tk.Tk):
         back_button = tk.Button(self.edit_mobil_frame, text="Kembali", command=self.show_data)
         back_button.pack(pady=10)
 
-        # Transaction frame
+        # Modifikasi bagian transaksi frame
         label_transaksi = tk.Label(self.transaksi_frame, text="Tambah Transaksi", font=("Helvetica", 12))
         label_transaksi.pack(pady=5)
 
@@ -210,29 +211,15 @@ class Application(tk.Tk):
         self.jarak_entry = tk.Entry(self.transaksi_frame, width=30)
         self.jarak_entry.pack(pady=5)
 
-        # Tanggal input
-        tanggal_frame = tk.Frame(self.transaksi_frame)
-        tanggal_frame.pack(pady=5)
+        label_tanggal = tk.Label(self.transaksi_frame, text="Tanggal Transaksi", font=("Helvetica", 10))
+        label_tanggal.pack(pady=5)
 
-        label_tanggal = tk.Label(tanggal_frame, text="Tanggal:", font=("Helvetica", 10))
-        label_tanggal.grid(row=0, column=0, padx=5)
-        self.tanggal_entry = tk.Entry(tanggal_frame, width=5)
-        self.tanggal_entry.grid(row=0, column=1, padx=5)
-
-        label_bulan = tk.Label(tanggal_frame, text="Bulan:", font=("Helvetica", 10))
-        label_bulan.grid(row=0, column=2, padx=5)
-        self.bulan_entry = tk.Entry(tanggal_frame, width=5)
-        self.bulan_entry.grid(row=0, column=3, padx=5)
-
-        label_tahun = tk.Label(tanggal_frame, text="Tahun:", font=("Helvetica", 10))
-        label_tahun.grid(row=0, column=4, padx=5)
-        self.tahun_entry = tk.Entry(tanggal_frame, width=8)
-        self.tahun_entry.grid(row=0, column=5, padx=5)
+        self.tanggal_entry = DateEntry(self.transaksi_frame, width=12, background='darkblue',
+                                       foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.tanggal_entry.pack(pady=5)
 
         tambah_button = tk.Button(self.transaksi_frame, text="Tambah Transaksi", command=self.tambah_transaksi)
         tambah_button.pack(pady=10)
-
-
 
         lihat_history_button = tk.Button(self.transaksi_frame, text="HISTORY", command=self.show_transaksi_history)
         lihat_history_button.pack(pady=5)
@@ -563,31 +550,22 @@ class Application(tk.Tk):
         nama_mobil = self.mobil_var.get()
         id_mobil = self.mobil_id_map.get(nama_mobil)  # Dapatkan ID mobil dari nama
         jarak = self.jarak_entry.get()
-        tanggal = self.tanggal_entry.get()
-        bulan = self.bulan_entry.get()
-        tahun = self.tahun_entry.get()
+        tanggal = self.tanggal_entry.get_date()  # Mendapatkan tanggal dari DateEntry
 
-        if not nama_mobil or not id_mobil or jarak.strip() == "" or tanggal.strip() == "" or bulan.strip() == "" or tahun.strip() == "":
+        if not nama_mobil or not id_mobil or jarak.strip() == "":
             messagebox.showerror("Error", "Semua field harus diisi!")
         else:
             try:
                 jarak = int(jarak)  # Memastikan jarak adalah integer
-                tanggal = int(tanggal)
-                bulan = int(bulan)
-                tahun = int(tahun)
-                # Validasi tanggal
-                tanggal_obj = datetime(tahun, bulan, tanggal)
-                tanggal_str = tanggal_obj.strftime('%Y-%m-%d')
+                tanggal_str = tanggal.strftime('%Y-%m-%d')
                 transaksi_data = f"{id_mobil}_{jarak}_{tanggal_str}"
                 self.data_manager.tambah_transaksi(transaksi_data)
                 self.jarak_entry.delete(0, tk.END)
-                self.tanggal_entry.delete(0, tk.END)
-                self.bulan_entry.delete(0, tk.END)
-                self.tahun_entry.delete(0, tk.END)
+                self.tanggal_entry.set_date(datetime.now())  # Reset tanggal ke hari ini
                 self.mobil_var.set('')
                 messagebox.showinfo("Sukses", "Transaksi berhasil ditambahkan!")
             except ValueError:
-                messagebox.showerror("Error", "Format jarak atau tanggal tidak valid! Pastikan semua input adalah angka dan tanggal valid.")
+                messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
 
     def hide_all_frames(self):
         for frame in ( self.tambah_transaksi_frame, self.transaksi_history_frame, self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, 
