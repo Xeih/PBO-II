@@ -1,2 +1,4 @@
 ID_NAMA_MOBIL
 1:semersi:2:2
+2:MOBIL BARU:1:2
+3:Matterd:3:3

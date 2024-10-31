@@ -31,25 +31,29 @@ class Application(tk.Tk):
 
     def create_widgets(self):
         # Home frame widgets
-        canvas = Canvas(self.home_frame, width=400, height=150, bg="#FFA559", highlightthickness=0)
-        canvas.create_text(200, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="white")
+        canvas = Canvas(self.home_frame, width=500, height=150, bg="#e6b9a8", highlightthickness=0)
+        canvas.create_text(250, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="black")
         canvas.pack()
 
         frame = tk.Frame(self.home_frame)
         frame.pack(pady=20)
 
-        button_mobil = tk.Button(frame, text="Mobil", font=("Helvetica", 12), compound=tk.TOP, bg="green", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
+        button_mobil = tk.Button(frame, text="MOBIL", font=("Helvetica", 12), compound=tk.TOP, bg="#377477", fg="white", padx=20, pady=10, command=lambda: self.show_data('mobil'))
         button_mobil.grid(row=0, column=0, padx=20)
 
-        button_merk = tk.Button(frame, text="Merk", font=("Helvetica", 12), compound=tk.TOP, bg="purple", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
+        button_merk = tk.Button(frame, text="MERK", font=("Helvetica", 12), compound=tk.TOP, bg="#800408", fg="white", padx=20, pady=10, command=lambda: self.show_data('merek'))
         button_merk.grid(row=0, column=1, padx=20)
 
-        button_warna = tk.Button(frame, text="Warna", font=("Helvetica", 12), compound=tk.TOP, bg="red", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
+        button_warna = tk.Button(frame, text="WARNA", font=("Helvetica", 12), compound=tk.TOP, bg="#ca696a", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
         button_warna.grid(row=0, column=2, padx=20)
 
         #frame = self.home_frame.winfo_children()[1]  # Assuming the frame is the second child of home_frame
-        button_transaksi = tk.Button(frame, text="Transaksi", font=("Helvetica", 12), compound=tk.TOP, bg="blue", fg="white", padx=20, pady=10, command=self.show_transaksi)
+        button_transaksi = tk.Button(frame, text="TRANSAKSI", font=("Helvetica", 12), compound=tk.TOP, bg="#664344", fg="white", padx=20, pady=10, command=self.show_transaksi)
         button_transaksi.grid(row=1, column=1, padx=20, pady=10)  # Adjust the row and column as needed
+
+        # Create a frame to contain the Treeview and scrollbar
+        tree_frame = tk.Frame(self.transaksi_history_frame)
+        tree_frame.pack(pady=10, fill="both", expand=True)
 
         # Data frames (mobil, warna, merk)
         for frame, title in [(self.mobil_frame, "List Mobil"), (self.warna_frame, "List Warna"), (self.merk_frame, "List Merk")]:
@@ -264,9 +268,35 @@ class Application(tk.Tk):
         back_button = tk.Button(self.tambah_transaksi_frame, text="Kembali", command=self.show_transaksi)
         back_button.pack(pady=10)
 
+
+
+        # Tambahkan label untuk history
+        history_label = tk.Label(self.home_frame, text="History Transaksi Terakhir:", 
+                                font=("Helvetica", 12, 'bold'))
+        history_label.pack(pady=10, side=tk.TOP)
+
+        # Buat Treeview untuk history di home frame
+        self.home_history_tree = ttk.Treeview(self.home_frame, 
+                                            columns=('Tanggal', 'Mobil', 'Jarak'), 
+                                            show='headings',
+                                            height=5)  # Batasi jumlah baris yang ditampilkan
+        
+        # Set heading untuk setiap kolom
+        self.home_history_tree.heading('Tanggal', text='Tanggal')
+        self.home_history_tree.heading('Mobil', text='Mobil')
+        self.home_history_tree.heading('Jarak', text='Jarak (km)')
+
+        # Set lebar kolom
+        self.home_history_tree.column('Tanggal', width=100)
+        self.home_history_tree.column('Mobil', width=150)
+        self.home_history_tree.column('Jarak', width=100)
+
+        self.home_history_tree.pack(pady=10)
+
     def show_home(self):
         self.hide_all_frames()
         self.home_frame.pack()
+        self.update_home_history()
 
     def show_data(self, data_type=None):
         self.hide_all_frames()
@@ -534,6 +564,28 @@ class Application(tk.Tk):
             nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
             self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
 
+    def update_home_history(self):
+        # Bersihkan data lama
+        for item in self.home_history_tree.get_children():
+            self.home_history_tree.delete(item)
+
+        # Ambil data transaksi
+        transaksi_list = self.data_manager.list_data('transaksi')
+        
+        # Urutkan transaksi berdasarkan tanggal (terbaru dulu)
+        sorted_transaksi = []
+        for transaksi_id, transaksi_data in transaksi_list.items():
+            id_mobil, jarak, tanggal = transaksi_data.split('_')
+            nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
+            sorted_transaksi.append((tanggal, nama_mobil, jarak))
+        
+        sorted_transaksi.sort(reverse=True)  # Urutkan berdasarkan tanggal terbaru
+        
+        # Tampilkan 5 transaksi terakhir
+        for i, (tanggal, nama_mobil, jarak) in enumerate(sorted_transaksi):
+            if i < 5:  # Hanya tampilkan 5 data terakhir
+                self.home_history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+
     def update_mobil_options(self):
         mobil_dict = self.data_manager.list_data('mobil')
         mobil_list = []
@@ -564,6 +616,10 @@ class Application(tk.Tk):
                 self.tanggal_entry.set_date(datetime.now())  # Reset tanggal ke hari ini
                 self.mobil_var.set('')
                 messagebox.showinfo("Sukses", "Transaksi berhasil ditambahkan!")
+                self.update_home_history()
+            # Update detail mobil jika sedang ditampilkan
+                if self.detail_frame.winfo_viewable():
+                    self.show_mobil_detail()
             except ValueError:
                 messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
 
@@ -572,6 +628,17 @@ class Application(tk.Tk):
                       self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame, 
                       self.detail_frame, self.edit_frame, self.edit_mobil_frame, self.transaksi_frame):
             frame.pack_forget()
+
+    def hitung_total_jarak(self, id_mobil):
+        total_jarak = 0
+        transaksi_list = self.data_manager.list_data('transaksi')
+        
+        for transaksi_id, transaksi_data in transaksi_list.items():
+            mobil_id, jarak, tanggal = transaksi_data.split('_')
+            if mobil_id == id_mobil:
+                total_jarak += int(jarak)
+        
+        return total_jarak
 
     def show_mobil_detail(self):
         listbox = self.mobil_frame.winfo_children()[1]
@@ -582,8 +649,41 @@ class Application(tk.Tk):
             item_id = selected_item.split(":")[0].strip()
             details = self.data_manager.mobil.get_detail_mobil(item_id)
             if details:
-                detail_text = f"\nNama Mobil\t: {details['nama_mobil']}\nMerek\t\t: {details['merek']}\nWarna\t\t: {details['warna']}"
-                self.detail_label.config(text=detail_text,justify="left")
+                # Clear previous widgets in detail frame
+                for widget in self.detail_frame.winfo_children():
+                    widget.destroy()
+                
+                # Informasi dasar
+                total_jarak = self.hitung_total_jarak(item_id)
+                detail_text = (f"\nNama Mobil\t: {details['nama_mobil']}"
+                            f"\nMerek\t\t: {details['merek']}"
+                            f"\nWarna\t\t: {details['warna']}"
+                            f"\nTotal Jarak\t: {total_jarak} km")
+                
+                detail_label = tk.Label(self.detail_frame, text=detail_text, justify="left")
+                detail_label.pack(pady=10)
+                
+                # Tabel riwayat transaksi
+                history_label = tk.Label(self.detail_frame, text="Riwayat Penggunaan:", font=("Helvetica", 10, "bold"))
+                history_label.pack(pady=5)
+                
+                # Create Treeview
+                detail_tree = ttk.Treeview(self.detail_frame, columns=('Tanggal', 'Jarak'), show='headings', height=5)
+                detail_tree.heading('Tanggal', text='Tanggal')
+                detail_tree.heading('Jarak', text='Jarak (km)')
+                detail_tree.column('Tanggal', width=100)
+                detail_tree.column('Jarak', width=100)
+                detail_tree.pack(pady=5)
+                
+                # Populate treeview
+                riwayat = self.get_riwayat_transaksi_mobil(item_id)
+                for transaksi in riwayat:
+                    detail_tree.insert('', 'end', values=(transaksi['tanggal'], transaksi['jarak']))
+                
+                # Back button
+                back_button = tk.Button(self.detail_frame, text="Kembali", command=self.show_data)
+                back_button.pack(pady=10)
+                
                 self.hide_all_frames()
                 self.detail_frame.pack()
             else:
@@ -591,6 +691,21 @@ class Application(tk.Tk):
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih mobil yang ingin dilihat detailnya.")
 
+    def get_riwayat_transaksi_mobil(self, id_mobil):
+        transaksi_list = self.data_manager.list_data('transaksi')
+        riwayat = []
+        
+        for transaksi_id, transaksi_data in transaksi_list.items():
+            mobil_id, jarak, tanggal = transaksi_data.split('_')
+            if mobil_id == id_mobil:
+                riwayat.append({
+                    'tanggal': tanggal,
+                    'jarak': int(jarak)
+                })
+        
+        # Urutkan berdasarkan tanggal
+        riwayat.sort(key=lambda x: x['tanggal'], reverse=True)
+        return riwayat
 
 if __name__ == "__main__":
     app = Application()
