@@ -47,7 +47,7 @@ class Application(tk.Tk):
         button_warna = tk.Button(frame, text="Warna", font=("Helvetica", 12), compound=tk.TOP, bg="red", fg="white", padx=20, pady=10, command=lambda: self.show_data('warna'))
         button_warna.grid(row=0, column=2, padx=20)
 
-        frame = self.home_frame.winfo_children()[1]  # Assuming the frame is the second child of home_frame
+        #frame = self.home_frame.winfo_children()[1]  # Assuming the frame is the second child of home_frame
         button_transaksi = tk.Button(frame, text="Transaksi", font=("Helvetica", 12), compound=tk.TOP, bg="blue", fg="white", padx=20, pady=10, command=self.show_transaksi)
         button_transaksi.grid(row=1, column=1, padx=20, pady=10)  # Adjust the row and column as needed
 
@@ -61,34 +61,34 @@ class Application(tk.Tk):
 
             if frame == self.mobil_frame:
                 detail_button = tk.Button(frame, text="Tampilkan Detail", command=self.show_mobil_detail)
-                detail_button.pack(pady=5)
+                detail_button.pack(side=tk.TOP)
                 
             back_button = tk.Button(frame, text="Kembali", command=self.show_home)
-            back_button.pack(pady=10)
+            back_button.pack(side=tk.BOTTOM, pady=10)
             
             edit_button = tk.Button(frame, text="Edit", command=lambda f=frame: self.show_edit_dialog(f))
-            edit_button.pack(pady=10)
+            edit_button.pack(side=tk.TOP)
 
             if frame == self.warna_frame:
                 add_button = tk.Button(frame, text="+",font=("Helvetica", 12), command=self.show_tambah_warna)
-                add_button.pack(side=tk.LEFT, padx=5, pady=5)
+                add_button.pack(side=tk.RIGHT, padx=5, pady=15)
                 
                 delete_button = tk.Button(frame, text="-",font=("Helvetica", 12), command=lambda: self.delete_action('warna'))
-                delete_button.pack(side=tk.RIGHT, padx=5, pady=5)
+                delete_button.pack(side=tk.LEFT, padx=5, pady=15)
                 
             if frame == self.merk_frame:
                 add_button = tk.Button(frame, text="+", command=self.show_tambah_merek)
-                add_button.pack(side=tk.LEFT, padx=5, pady=5)
+                add_button.pack(side=tk.RIGHT, padx=5, pady=5)
                 
                 delete_button = tk.Button(frame, text="-", command=lambda: self.delete_action('merek'))
-                delete_button.pack(side=tk.RIGHT, padx=5, pady=5)
+                delete_button.pack(side=tk.LEFT, padx=5, pady=5)
                 
             if frame == self.mobil_frame:
                 add_button = tk.Button(frame, text="+", command=self.show_tambah_mobil)
-                add_button.pack(side=tk.LEFT, padx=5, pady=5)
+                add_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
                 delete_button = tk.Button(frame, text="-", command=lambda: self.delete_action('mobil'))
-                delete_button.pack(side=tk.RIGHT, padx=5, pady=5)
+                delete_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         # Warna tambah frame
         label_tambah = tk.Label(self.warna_tambah_frame, text="Tambah Warna Baru", font=("Helvetica", 12))
@@ -214,8 +214,8 @@ class Application(tk.Tk):
         label_tanggal = tk.Label(self.transaksi_frame, text="Tanggal Transaksi", font=("Helvetica", 10))
         label_tanggal.pack(pady=5)
 
-        self.tanggal_entry = DateEntry(self.transaksi_frame, width=12, background='darkblue',
-                                       foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.tanggal_entry = DateEntry(self.transaksi_frame, width=12, background='white',
+                                       foreground='grey', borderwidth=2, date_pattern='yyyy-mm-dd')
         self.tanggal_entry.pack(pady=5)
 
         tambah_button = tk.Button(self.transaksi_frame, text="Tambah Transaksi", command=self.tambah_transaksi)
