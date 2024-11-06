@@ -9,7 +9,7 @@ class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Data Mobil")
-        self.geometry("500x500")
+        self.geometry("500x600")
         self.data_manager = DataManager()
         self.current_data_type = 'warna'
 
@@ -28,11 +28,13 @@ class Application(tk.Tk):
         self.detail_frame = tk.Frame(self)
         self.transaksi_frame = tk.Frame(self)
         self.transaksi_history_frame = tk.Frame(self)
+        self.view_mobil_warna_frame = tk.Frame(self)
+        self.view_mobil_merk_frame = tk.Frame(self)
 
     def create_widgets(self):
         # Home frame widgets
-        canvas = Canvas(self.home_frame, width=500, height=150, bg="#FFA559", highlightthickness=0)
-        canvas.create_text(250, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="white")
+        canvas = Canvas(self.home_frame, width=500, height=150, bg="#e6b9a8", highlightthickness=0)
+        canvas.create_text(250, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="black")
         canvas.pack()
 
         frame = tk.Frame(self.home_frame)
@@ -48,7 +50,7 @@ class Application(tk.Tk):
         button_warna.grid(row=0, column=2, padx=20)
 
         #frame = self.home_frame.winfo_children()[1]  # Assuming the frame is the second child of home_frame
-        button_transaksi = tk.Button(frame, text="TRANSAKSI", font=("Helvetica", 12), compound=tk.TOP, bg="#664344", fg="white", padx=20, pady=10, command=self.show_transaksi)
+        button_transaksi = tk.Button(frame, text="TRANSAKSI", font=("Helvetica", 12), compound=tk.TOP, bg="#664344", fg="white", padx=20, pady=10, command=self.show_transaksi_history)
         button_transaksi.grid(row=1, column=1, padx=20, pady=10)  # Adjust the row and column as needed
 
         # Create a frame to contain the Treeview and scrollbar
@@ -231,10 +233,7 @@ class Application(tk.Tk):
         tambah_button = tk.Button(self.transaksi_frame, text="Tambah Transaksi", command=self.tambah_transaksi)
         tambah_button.pack(pady=10)
 
-        lihat_history_button = tk.Button(self.transaksi_frame, text="HISTORY", command=self.show_transaksi_history)
-        lihat_history_button.pack(pady=5)
-
-        back_button = tk.Button(self.transaksi_frame, text="Kembali", command=self.show_home)
+        back_button = tk.Button(self.transaksi_frame, text="Kembali", command=self.show_transaksi_history)
         back_button.pack(pady=10)
 
         # Create a frame to contain the Treeview and scrollbar
@@ -260,13 +259,8 @@ class Application(tk.Tk):
         self.history_tree.pack(side="left", fill="both", expand=True)
 
         # Add the back button at the bottom
-        back_button = tk.Button(self.transaksi_history_frame, text="Kembali", command=self.show_transaksi)
+        back_button = tk.Button(self.transaksi_history_frame, text="Kembali", command=self.show_home)
         back_button.pack(side="bottom", pady=10)
-
-        self.total_jarak_label = tk.Label(self.transaksi_history_frame, 
-                                        text="Total Jarak: 0 km", 
-                                        font=("Helvetica", 10, "bold"))
-        self.total_jarak_label.pack(pady=5)
 
         # Create Tambah Transaksi frame
         self.tambah_transaksi_frame = tk.Frame(self)
@@ -279,32 +273,13 @@ class Application(tk.Tk):
         back_button = tk.Button(self.tambah_transaksi_frame, text="Kembali", command=self.show_transaksi)
         back_button.pack(pady=10)
 
-
-
-        # Tambahkan label untuk history
-        history_label = tk.Label(self.home_frame, text="History Transaksi Terakhir:", 
-                                font=("Helvetica", 12, 'bold'))
-        history_label.pack(pady=10, side=tk.TOP)
-
-        # Buat Treeview untuk history di home frame
-        self.home_history_tree = ttk.Treeview(self.home_frame, 
-                                            columns=('Tanggal', 'Mobil', 'Jarak'), 
-                                            show='headings',
-                                            height=5)  # Batasi jumlah baris yang ditampilkan
         
-        # Set heading untuk setiap kolom
-        self.home_history_tree.heading('Tanggal', text='Tanggal')
-        self.home_history_tree.heading('Mobil', text='Mobil')
-        self.home_history_tree.heading('Jarak', text='Jarak (km)')
+        self.total_jarak_label = tk.Label(self.transaksi_history_frame, 
+                                        text="Total Jarak: 0 km", 
+                                        font=("Helvetica", 10, "bold"))
+        self.total_jarak_label.pack(pady=5)
 
-        # Set lebar kolom
-        self.home_history_tree.column('Tanggal', width=100)
-        self.home_history_tree.column('Mobil', width=150)
-        self.home_history_tree.column('Jarak', width=100)
-
-        self.home_history_tree.pack(pady=10)
-
-    #fiter frame
+        #fiter frame
         filter_frame = tk.Frame(self.transaksi_history_frame)
         filter_frame.pack(pady=5)
 
@@ -332,6 +307,31 @@ class Application(tk.Tk):
         reset_button = tk.Button(filter_frame, text="Reset", command=self.reset_date_filter)
         reset_button.pack(side=tk.LEFT, padx=5)
 
+        tambah_button = tk.Button(self.transaksi_history_frame, text="Tambah Transaksi", command=self.show_transaksi)
+        tambah_button.pack(pady=10)
+
+        # Tambahkan label untuk history
+        history_label = tk.Label(self.home_frame, text="History Transaksi Terakhir:", 
+                                font=("Helvetica", 12, 'bold'))
+        history_label.pack(pady=10, side=tk.TOP)
+
+        # Buat Treeview untuk history di home frame
+        self.home_history_tree = ttk.Treeview(self.home_frame, 
+                                            columns=('Tanggal', 'Mobil', 'Jarak'), 
+                                            show='headings',
+                                            height=5)  # Batasi jumlah baris yang ditampilkan
+
+        # Set heading untuk setiap kolom
+        self.home_history_tree.heading('Tanggal', text='Tanggal')
+        self.home_history_tree.heading('Mobil', text='Mobil')
+        self.home_history_tree.heading('Jarak', text='Jarak (km)')
+
+        # Set lebar kolom
+        self.home_history_tree.column('Tanggal', width=100)
+        self.home_history_tree.column('Mobil', width=150)
+        self.home_history_tree.column('Jarak', width=100)
+
+        self.home_history_tree.pack(pady=10)
 
     def show_home(self):
         self.hide_all_frames()
@@ -369,6 +369,47 @@ class Application(tk.Tk):
     def hide_all_frames(self):
         for frame in (self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame, self.detail_frame):
             frame.pack_forget()
+
+
+    def on_merek_select(self, *args):
+        selected_name = self.merek_var.get()
+        self.selected_merek_id = next((id for id, name in self.data_manager.list_data('merek').items() if name == selected_name), None)
+
+    def on_warna_select(self, *args):
+        selected_name = self.warna_var.get()
+        self.selected_warna_id = next((id for id, name in self.data_manager.list_data('warna').items() if name == selected_name), None)
+
+    def on_edit_merek_select(self, *args):
+        selected_name = self.edit_merek_var.get()
+        self.selected_edit_merek_id = next((id for id, name in self.data_manager.list_data('merek').items() if name == selected_name), None)
+
+    def on_edit_warna_select(self, *args):
+        selected_name = self.edit_warna_var.get()
+        self.selected_edit_warna_id = next((id for id, name in self.data_manager.list_data('warna').items() if name == selected_name), None)
+
+    def show_transaksi(self):
+        self.hide_all_frames()
+        self.transaksi_frame.pack()
+        self.update_mobil_options()
+
+    def show_tambah_transaksi(self):
+        self.hide_all_frames()
+        self.tambah_transaksi_frame.pack()
+        self.update_mobil_options()
+
+    def show_transaksi_history(self):
+        self.hide_all_frames()
+        self.transaksi_history_frame.pack()
+        self.update_transaksi_history()
+
+    def hide_all_frames(self):
+        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, 
+                    self.merk_frame, self.warna_tambah_frame, 
+                    self.merk_tambah_frame, self.mobil_tambah_frame, 
+                    self.detail_frame, self.edit_frame, self.edit_mobil_frame, 
+                    self.transaksi_frame, getattr(self, 'result_frame', None), self.transaksi_history_frame):
+            if frame:
+                frame.pack_forget()
 
     def update_listbox(self, data_type):
         listbox = self.warna_frame.winfo_children()[1] if data_type == 'warna' else \
@@ -561,37 +602,6 @@ class Application(tk.Tk):
             except ValueError as e:
                 messagebox.showerror("Error", str(e))
 
-    def on_merek_select(self, *args):
-        selected_name = self.merek_var.get()
-        self.selected_merek_id = next((id for id, name in self.data_manager.list_data('merek').items() if name == selected_name), None)
-
-    def on_warna_select(self, *args):
-        selected_name = self.warna_var.get()
-        self.selected_warna_id = next((id for id, name in self.data_manager.list_data('warna').items() if name == selected_name), None)
-
-    def on_edit_merek_select(self, *args):
-        selected_name = self.edit_merek_var.get()
-        self.selected_edit_merek_id = next((id for id, name in self.data_manager.list_data('merek').items() if name == selected_name), None)
-
-    def on_edit_warna_select(self, *args):
-        selected_name = self.edit_warna_var.get()
-        self.selected_edit_warna_id = next((id for id, name in self.data_manager.list_data('warna').items() if name == selected_name), None)
-
-    def show_transaksi(self):
-        self.hide_all_frames()
-        self.transaksi_frame.pack()
-        self.update_mobil_options()
-
-    def show_tambah_transaksi(self):
-        self.hide_all_frames()
-        self.tambah_transaksi_frame.pack()
-        self.update_mobil_options()
-
-    def show_transaksi_history(self):
-        self.hide_all_frames()
-        self.transaksi_history_frame.pack()
-        self.update_transaksi_history()
-
     def update_transaksi_history(self):
         # Clear existing items
         for item in self.history_tree.get_children():
@@ -603,6 +613,7 @@ class Application(tk.Tk):
             id_mobil, jarak, tanggal = transaksi_data.split('_')
             nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
             self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+
         self.update_total_jarak()
 
     def update_total_jarak(self):
@@ -674,14 +685,6 @@ class Application(tk.Tk):
             except ValueError:
                 messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
 
-    def hide_all_frames(self):
-        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, 
-                    self.merk_frame, self.warna_tambah_frame, 
-                    self.merk_tambah_frame, self.mobil_tambah_frame, 
-                    self.detail_frame, self.edit_frame, self.edit_mobil_frame, 
-                    self.transaksi_frame, getattr(self, 'result_frame', None), self.transaksi_history_frame):
-            if frame:
-                frame.pack_forget()
 
     def hitung_total_jarak(self, id_mobil):
         total_jarak = 0
@@ -691,7 +694,6 @@ class Application(tk.Tk):
             mobil_id, jarak, tanggal = transaksi_data.split('_')
             if mobil_id == id_mobil:
                 total_jarak += int(jarak)
-        
         return total_jarak
 
     def show_mobil_detail(self):
@@ -793,6 +795,8 @@ class Application(tk.Tk):
         for tanggal, nama_mobil, jarak in filtered_transactions:
             self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
 
+        self.update_total_jarak()
+
     def reset_date_filter(self):
         # Reset date entries to current date
         current_date = datetime.now()
@@ -852,6 +856,7 @@ class Application(tk.Tk):
             self.show_mobil_list(f"Daftar Mobil dengan Merek {merek_name}", mobil_list)
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih merek terlebih dahulu.")
+
 if __name__ == "__main__":
     app = Application()
     app.mainloop()
