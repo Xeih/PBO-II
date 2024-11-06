@@ -293,6 +293,35 @@ class Application(tk.Tk):
 
         self.home_history_tree.pack(pady=10)
 
+    #fiter frame
+        filter_frame = tk.Frame(self.transaksi_history_frame)
+        filter_frame.pack(pady=5)
+
+        # Start date filter
+        start_date_label = tk.Label(filter_frame, text="Tanggal Mulai:")
+        start_date_label.pack(side=tk.LEFT, padx=5)
+        
+        self.start_date_filter = DateEntry(filter_frame, width=12, background='white',
+                                         foreground='grey', borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.start_date_filter.pack(side=tk.LEFT, padx=5)
+
+        # End date filter
+        end_date_label = tk.Label(filter_frame, text="Tanggal Selesai:")
+        end_date_label.pack(side=tk.LEFT, padx=5)
+        
+        self.end_date_filter = DateEntry(filter_frame, width=12, background='white',
+                                       foreground='grey', borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.end_date_filter.pack(side=tk.LEFT, padx=5)
+
+        # Filter button
+        filter_button = tk.Button(filter_frame, text="Filter", command=self.apply_date_filter)
+        filter_button.pack(side=tk.LEFT, padx=5)
+
+        # Reset button
+        reset_button = tk.Button(filter_frame, text="Reset", command=self.reset_date_filter)
+        reset_button.pack(side=tk.LEFT, padx=5)
+
+
     def show_home(self):
         self.hide_all_frames()
         self.home_frame.pack()
@@ -706,6 +735,47 @@ class Application(tk.Tk):
         # Urutkan berdasarkan tanggal
         riwayat.sort(key=lambda x: x['tanggal'], reverse=True)
         return riwayat
+
+    def apply_date_filter(self):
+        start_date = self.start_date_filter.get_date()
+        end_date = self.end_date_filter.get_date()
+        
+        # Validate dates
+        if start_date > end_date:
+            messagebox.showerror("Error", "Tanggal mulai tidak boleh lebih besar dari tanggal selesai!")
+            return
+        
+        # Clear existing items
+        for item in self.history_tree.get_children():
+            self.history_tree.delete(item)
+        
+        # Fetch and filter transaction history
+        transaksi_list = self.data_manager.list_data('transaksi')
+        filtered_transactions = []
+        
+        for transaksi_id, transaksi_data in transaksi_list.items():
+            id_mobil, jarak, tanggal_str = transaksi_data.split('_')
+            tanggal = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+            
+            if start_date <= tanggal <= end_date:
+                nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
+                filtered_transactions.append((tanggal_str, nama_mobil, jarak))
+        
+        # Sort by date
+        filtered_transactions.sort(reverse=True)
+        
+        # Display filtered results
+        for tanggal, nama_mobil, jarak in filtered_transactions:
+            self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+
+    def reset_date_filter(self):
+        # Reset date entries to current date
+        current_date = datetime.now()
+        self.start_date_filter.set_date(current_date)
+        self.end_date_filter.set_date(current_date)
+        
+        # Update the display with all transactions
+        self.update_transaksi_history()
 
 if __name__ == "__main__":
     app = Application()
