@@ -777,6 +777,56 @@ class Application(tk.Tk):
         # Update the display with all transactions
         self.update_transaksi_history()
 
+    def show_mobil_list(self, title, mobil_list):
+        # Buat frame baru untuk menampilkan hasil
+        self.result_frame = tk.Frame(self)
+        
+        # Label untuk judul
+        result_title = tk.Label(self.result_frame, text=title, font=("Helvetica", 12, "bold"))
+        result_title.pack(pady=10)
+
+        # Listbox untuk menampilkan data mobil
+        result_listbox = tk.Listbox(self.result_frame, width=40, height=10)
+        result_listbox.pack(pady=5, padx=10)
+
+        # Populate listbox dengan data mobil
+        for id_mobil, nama_mobil in mobil_list:
+            result_listbox.insert(tk.END, f"{id_mobil}: {nama_mobil}")
+
+        # Tombol kembali
+        back_button = tk.Button(self.result_frame, text="Kembali", command=self.show_data)
+        back_button.pack(pady=10)
+
+        # Sembunyikan frame lain dan tampilkan result_frame
+        self.hide_all_frames()
+        self.result_frame.pack()
+
+
+    def show_mobil_by_warna(self):
+        listbox = self.warna_frame.winfo_children()[1]
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            id_warna = selected_item.split(":")[0].strip()
+            warna_name = selected_item.split(":")[1].strip()
+            mobil_list = self.data_manager.get_mobil_by_warna(id_warna)
+            self.show_mobil_list(f"Daftar Mobil dengan Warna {warna_name}", mobil_list)
+        else:
+            messagebox.showwarning("Peringatan", "Silakan pilih warna terlebih dahulu.")
+
+    def show_mobil_by_merek(self):
+        listbox = self.merk_frame.winfo_children()[1]
+        selected_indices = listbox.curselection()
+        if selected_indices:
+            index = selected_indices[0]
+            selected_item = listbox.get(index)
+            id_merek = selected_item.split(":")[0].strip()
+            merek_name = selected_item.split(":")[1].strip()
+            mobil_list = self.data_manager.get_mobil_by_merek(id_merek)
+            self.show_mobil_list(f"Daftar Mobil dengan Merek {merek_name}", mobil_list)
+        else:
+            messagebox.showwarning("Peringatan", "Silakan pilih merek terlebih dahulu.")
 if __name__ == "__main__":
     app = Application()
     app.mainloop()
