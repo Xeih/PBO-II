@@ -263,6 +263,11 @@ class Application(tk.Tk):
         back_button = tk.Button(self.transaksi_history_frame, text="Kembali", command=self.show_transaksi)
         back_button.pack(side="bottom", pady=10)
 
+        self.total_jarak_label = tk.Label(self.transaksi_history_frame, 
+                                        text="Total Jarak: 0 km", 
+                                        font=("Helvetica", 10, "bold"))
+        self.total_jarak_label.pack(pady=5)
+
         # Create Tambah Transaksi frame
         self.tambah_transaksi_frame = tk.Frame(self)
         label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Transaksi", font=("Helvetica", 12))
