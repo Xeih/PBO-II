@@ -598,6 +598,17 @@ class Application(tk.Tk):
             id_mobil, jarak, tanggal = transaksi_data.split('_')
             nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
             self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+        self.update_total_jarak()
+
+    def update_total_jarak(self):
+        total_jarak = 0
+        for item in self.history_tree.get_children():
+            # Ambil nilai jarak dari kolom ketiga (indeks 2)
+            jarak = float(self.history_tree.item(item)['values'][2])
+            total_jarak += jarak
+        
+        # Update label total jarak
+        self.total_jarak_label.config(text=f"Total Jarak: {total_jarak:.1f} km")
 
     def update_home_history(self):
         # Bersihkan data lama
