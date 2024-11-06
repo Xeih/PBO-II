@@ -31,8 +31,8 @@ class Application(tk.Tk):
 
     def create_widgets(self):
         # Home frame widgets
-        canvas = Canvas(self.home_frame, width=500, height=150, bg="#e6b9a8", highlightthickness=0)
-        canvas.create_text(250, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="black")
+        canvas = Canvas(self.home_frame, width=500, height=150, bg="#FFA559", highlightthickness=0)
+        canvas.create_text(250, 75, text="DATA MOBIL", font=("Helvetica", 24, "bold"), fill="white")
         canvas.pack()
 
         frame = tk.Frame(self.home_frame)
