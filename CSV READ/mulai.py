@@ -79,6 +79,9 @@ class Application(tk.Tk):
                 
                 delete_button = tk.Button(frame, text="-",font=("Helvetica", 12), command=lambda: self.delete_action('warna'))
                 delete_button.pack(side=tk.LEFT, padx=5, pady=15)
+
+                show_mobil_button = tk.Button(frame, text="View", command=self.show_mobil_by_warna)
+                show_mobil_button.pack(side=tk.BOTTOM, pady=5)
                 
             if frame == self.merk_frame:
                 add_button = tk.Button(frame, text="+", command=self.show_tambah_merek)
@@ -86,6 +89,9 @@ class Application(tk.Tk):
                 
                 delete_button = tk.Button(frame, text="-", command=lambda: self.delete_action('merek'))
                 delete_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+                show_mobil_button = tk.Button(frame, text="View ", command=self.show_mobil_by_merek)
+                show_mobil_button.pack(side=tk.BOTTOM, pady=5)
                 
             if frame == self.mobil_frame:
                 add_button = tk.Button(frame, text="+", command=self.show_tambah_mobil)
@@ -653,10 +659,13 @@ class Application(tk.Tk):
                 messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
 
     def hide_all_frames(self):
-        for frame in ( self.tambah_transaksi_frame, self.transaksi_history_frame, self.home_frame, self.mobil_frame, self.warna_frame, self.merk_frame, 
-                      self.warna_tambah_frame, self.merk_tambah_frame, self.mobil_tambah_frame, 
-                      self.detail_frame, self.edit_frame, self.edit_mobil_frame, self.transaksi_frame):
-            frame.pack_forget()
+        for frame in (self.home_frame, self.mobil_frame, self.warna_frame, 
+                    self.merk_frame, self.warna_tambah_frame, 
+                    self.merk_tambah_frame, self.mobil_tambah_frame, 
+                    self.detail_frame, self.edit_frame, self.edit_mobil_frame, 
+                    self.transaksi_frame, getattr(self, 'result_frame', None), self.transaksi_history_frame):
+            if frame:
+                frame.pack_forget()
 
     def hitung_total_jarak(self, id_mobil):
         total_jarak = 0

@@ -62,4 +62,21 @@ class DataManager:
         # transaksi_data should be in the format "id_mobil_jarak_tanggal"
         return self.transaksi.tambah_transaksi(transaksi_data)
     
+    def get_mobil_by_merek(self, id_merek):
+        mobil_list = []
+        mobil_dict = self.get_data_object('mobil').list_mobil()
+        for id_mobil, data in mobil_dict.items():
+            nama_mobil, id_merek_mobil, id_warna = data.split(':')
+            if id_merek_mobil == id_merek:
+                mobil_list.append((id_mobil, nama_mobil))
+        return mobil_list
+
+    def get_mobil_by_warna(self, id_warna):
+        mobil_list = []
+        mobil_dict = self.get_data_object('mobil').list_mobil()
+        for id_mobil, data in mobil_dict.items():
+            nama_mobil, id_merek, id_warna_mobil = data.split(':')
+            if id_warna_mobil == id_warna:
+                mobil_list.append((id_mobil, nama_mobil))
+        return mobil_list
     
