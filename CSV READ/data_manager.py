@@ -1,4 +1,6 @@
 from fungsi import Mobil, Merek, Warna, Transaksi
+import tkinter as tk
+from tkinter import ttk
 
 class DataManager:
     def __init__(self):
@@ -79,4 +81,50 @@ class DataManager:
             if id_warna_mobil == id_warna:
                 mobil_list.append((id_mobil, nama_mobil))
         return mobil_list
+    
+# First, make sure to include the SortableTreeview class definition at the top of your file
+class SortableTreeview(ttk.Treeview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        
+        # Dictionary untuk menyimpan arah sorting
+        self._sort_direction = {}
+        
+        # Bind fungsi sort ke event klik pada heading
+        self.bind('<Button-1>', self._handle_click)
+    
+    def _handle_click(self, event):
+        region = self.identify_region(event.x, event.y)
+        if region == "heading":
+            # Dapatkan kolom yang diklik
+            column = self.identify_column(event.x)
+            column_index = int(column[1]) - 1  # Convert '#1' to 0
+            column_id = self['columns'][column_index]
+            
+            # Toggle arah sorting
+            if column_id not in self._sort_direction:
+                self._sort_direction[column_id] = 'asc'
+            else:
+                self._sort_direction[column_id] = 'desc' if self._sort_direction[column_id] == 'asc' else 'asc'
+            
+            # Ambil semua item
+            items = [(self.set(item, column_id), item) for item in self.get_children('')]
+            
+            # Sorting items
+            items.sort(reverse=self._sort_direction[column_id] == 'desc')
+            
+            # Reorder items di treeview
+            for index, (_, item) in enumerate(items):
+                self.move(item, '', index)
+            
+            # Update tampilan header untuk menunjukkan arah sorting
+            for col in self['columns']:
+                if col == column_id:
+                    direction = ' ↑' if self._sort_direction[col] == 'asc' else ' ↓'
+                    self.heading(col, text=f"{col}{direction}")
+                else:
+                    # Remove arrow if exists in text
+                    current_text = self.heading(col)['text']
+                    clean_text = current_text.replace(' ↑', '').replace(' ↓', '')
+                    self.heading(col, text=clean_text)
     

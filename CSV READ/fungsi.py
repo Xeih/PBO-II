@@ -178,6 +178,7 @@ class Transaksi(DataItem):
         if id_transaksi in transaksi_dict:
             id_mobil, jarak, tanggal = transaksi_dict[id_transaksi].split('_')
             return {
+                'id_transaksi': id_transaksi,  # Menambahkan id_transaksi ke dalam dictionary
                 'id_mobil': id_mobil,
                 'jarak': jarak,
                 'tanggal': tanggal

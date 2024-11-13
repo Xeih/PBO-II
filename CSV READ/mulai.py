@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import Canvas,ttk
-from data_manager import DataManager
+from data_manager import DataManager, SortableTreeview
 from datetime import datetime
 from tkcalendar import DateEntry
 
@@ -50,7 +50,7 @@ class Application(tk.Tk):
         button_warna.grid(row=0, column=2, padx=20)
 
         #frame = self.home_frame.winfo_children()[1]  # Assuming the frame is the second child of home_frame
-        button_transaksi = tk.Button(frame, text="TRANSAKSI", font=("Helvetica", 12), compound=tk.TOP, bg="#664344", fg="white", padx=20, pady=10, command=self.show_transaksi_history)
+        button_transaksi = tk.Button(frame, text="PERJALANAN", font=("Helvetica", 12), compound=tk.TOP, bg="#664344", fg="white", padx=20, pady=10, command=self.show_transaksi_history)
         button_transaksi.grid(row=1, column=1, padx=20, pady=10)  # Adjust the row and column as needed
 
         # Create a frame to contain the Treeview and scrollbar
@@ -207,7 +207,7 @@ class Application(tk.Tk):
         back_button.pack(pady=10)
 
         # Modifikasi bagian transaksi frame
-        label_transaksi = tk.Label(self.transaksi_frame, text="Tambah Transaksi", font=("Helvetica", 12))
+        label_transaksi = tk.Label(self.transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
         label_transaksi.pack(pady=5)
 
         label_mobil = tk.Label(self.transaksi_frame, text="Pilih Mobil", font=("Helvetica", 10))
@@ -230,7 +230,7 @@ class Application(tk.Tk):
                                        foreground='grey', borderwidth=2, date_pattern='yyyy-mm-dd')
         self.tanggal_entry.pack(pady=5)
 
-        tambah_button = tk.Button(self.transaksi_frame, text="Tambah Transaksi", command=self.tambah_transaksi)
+        tambah_button = tk.Button(self.transaksi_frame, text="Tambah Perjalanan", command=self.tambah_transaksi)
         tambah_button.pack(pady=10)
 
         back_button = tk.Button(self.transaksi_frame, text="Kembali", command=self.show_transaksi_history)
@@ -240,16 +240,17 @@ class Application(tk.Tk):
         tree_frame = tk.Frame(self.transaksi_history_frame)
         tree_frame.pack(pady=10, fill="both", expand=True)
 
-        # Create Treeview with adjusted column widths
-        self.history_tree = ttk.Treeview(tree_frame, columns=('Tanggal', 'Mobil', 'Jarak'), show='headings')
+        self.history_tree = SortableTreeview(tree_frame, columns=('id','Tanggal', 'Mobil', 'Jarak'), show='headings')
+        self.history_tree.heading('id', text='No.')
         self.history_tree.heading('Tanggal', text='Tanggal')
         self.history_tree.heading('Mobil', text='Mobil')
         self.history_tree.heading('Jarak', text='Jarak (km)')
         
         # Set column widths
-        self.history_tree.column('Tanggal', width=100)
+        self.history_tree.column('id', width=15,anchor='center')        
+        self.history_tree.column('Tanggal', width=100,anchor='center')
         self.history_tree.column('Mobil', width=150)
-        self.history_tree.column('Jarak', width=100)
+        self.history_tree.column('Jarak', width=100 ,anchor='center')
         
         # Add scrollbar to the Treeview
         scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.history_tree.yview)
@@ -264,10 +265,10 @@ class Application(tk.Tk):
 
         # Create Tambah Transaksi frame
         self.tambah_transaksi_frame = tk.Frame(self)
-        label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Transaksi", font=("Helvetica", 12))
+        label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
         label_tambah_transaksi.pack(pady=5)
 
-        tambah_button = tk.Button(self.tambah_transaksi_frame, text="Tambah Transaksi", command=self.tambah_transaksi)
+        tambah_button = tk.Button(self.tambah_transaksi_frame, text="Tambah Perjalanan", command=self.tambah_transaksi)
         tambah_button.pack(pady=10)
 
         back_button = tk.Button(self.tambah_transaksi_frame, text="Kembali", command=self.show_transaksi)
@@ -307,7 +308,7 @@ class Application(tk.Tk):
         reset_button = tk.Button(filter_frame, text="Reset", command=self.reset_date_filter)
         reset_button.pack(side=tk.LEFT, padx=5)
 
-        tambah_button = tk.Button(self.transaksi_history_frame, text="Tambah Transaksi", command=self.show_transaksi)
+        tambah_button = tk.Button(self.transaksi_history_frame, text="Tambah Perjalanan", command=self.show_transaksi)
         tambah_button.pack(pady=10)
 
         # Tambahkan label untuk history
@@ -327,9 +328,9 @@ class Application(tk.Tk):
         self.home_history_tree.heading('Jarak', text='Jarak (km)')
 
         # Set lebar kolom
-        self.home_history_tree.column('Tanggal', width=100)
+        self.home_history_tree.column('Tanggal', width=100,anchor='center')
         self.home_history_tree.column('Mobil', width=150)
-        self.home_history_tree.column('Jarak', width=100)
+        self.home_history_tree.column('Jarak', width=100,anchor='center')
 
         self.home_history_tree.pack(pady=10)
 
@@ -612,15 +613,15 @@ class Application(tk.Tk):
         for transaksi_id, transaksi_data in transaksi_list.items():
             id_mobil, jarak, tanggal = transaksi_data.split('_')
             nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
-            self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+            self.history_tree.insert('', 'end', values=(transaksi_id, tanggal, nama_mobil, jarak))  # Menambahkan transaksi_id ke values
 
         self.update_total_jarak()
 
     def update_total_jarak(self):
         total_jarak = 0
         for item in self.history_tree.get_children():
-            # Ambil nilai jarak dari kolom ketiga (indeks 2)
-            jarak = float(self.history_tree.item(item)['values'][2])
+            # Ambil nilai jarak dari kolom ketiga (indeks 3)
+            jarak = float(self.history_tree.item(item)['values'][3])
             total_jarak += jarak
         
         # Update label total jarak
@@ -724,11 +725,11 @@ class Application(tk.Tk):
                 history_label.pack(pady=5)
                 
                 # Create Treeview
-                detail_tree = ttk.Treeview(self.detail_frame, columns=('Tanggal', 'Jarak'), show='headings', height=5)
+                detail_tree = SortableTreeview(self.detail_frame, columns=('Tanggal', 'Jarak'), show='headings', height=5)
                 detail_tree.heading('Tanggal', text='Tanggal')
                 detail_tree.heading('Jarak', text='Jarak (km)')
-                detail_tree.column('Tanggal', width=100)
-                detail_tree.column('Jarak', width=100)
+                detail_tree.column('Tanggal', width=100,anchor='center')
+                detail_tree.column('Jarak', width=100,anchor='center')
                 detail_tree.pack(pady=5)
                 
                 # Populate treeview
