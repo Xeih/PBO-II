@@ -2,3 +2,4 @@ ID_WARNA
 1:Biru
 2:Kuning
 3:Pink
+4:Putih

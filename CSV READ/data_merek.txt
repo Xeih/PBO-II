@@ -2,3 +2,5 @@ ID_MEREK
 1:Honda
 2:Mercy
 3:Panter
+4:Porsche
+5:BMW

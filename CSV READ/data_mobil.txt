@@ -1,4 +1,6 @@
 ID_NAMA_MOBIL
-1:semersi:2:2
-2:MOBIL BARU:1:2
-3:Matterd:3:3
+1:GLA 200:2:2
+2:Civic Turbo Type R:1:2
+3:Panther:3:3
+4:Porsche 911 GT3 RS:4:4
+5:F30:5:4
