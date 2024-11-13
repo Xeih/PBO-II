@@ -728,8 +728,8 @@ class Application(tk.Tk):
                 detail_tree = SortableTreeview(self.detail_frame, columns=('Tanggal', 'Jarak'), show='headings', height=5)
                 detail_tree.heading('Tanggal', text='Tanggal')
                 detail_tree.heading('Jarak', text='Jarak (km)')
-                detail_tree.column('Tanggal', width=100,anchor='center')
-                detail_tree.column('Jarak', width=100,anchor='center')
+                detail_tree.column('Tanggal', width=100, anchor='center')
+                detail_tree.column('Jarak', width=100, anchor='center')
                 detail_tree.pack(pady=5)
                 
                 # Populate treeview
@@ -737,8 +737,66 @@ class Application(tk.Tk):
                 for transaksi in riwayat:
                     detail_tree.insert('', 'end', values=(transaksi['tanggal'], transaksi['jarak']))
                 
+                # Add transaction section
+                tambah_label = tk.Label(self.detail_frame, text="Tambah Perjalanan Baru", font=("Helvetica", 10, "bold"))
+                tambah_label.pack(pady=(15, 5))
+                
+                # Frame for transaction inputs
+                input_frame = tk.Frame(self.detail_frame)
+                input_frame.pack(pady=5)
+                
+                # Jarak input
+                jarak_label = tk.Label(input_frame, text="Jarak (km):")
+                jarak_label.pack(side=tk.LEFT, padx=5)
+                
+                jarak_entry = tk.Entry(input_frame, width=10)
+                jarak_entry.pack(side=tk.LEFT, padx=5)
+                
+                # Tanggal input
+                tanggal_label = tk.Label(input_frame, text="Tanggal:")
+                tanggal_label.pack(side=tk.LEFT, padx=5)
+                
+                tanggal_entry = DateEntry(input_frame, width=12, background='white',
+                                        foreground='grey', borderwidth=2, date_pattern='yyyy-mm-dd')
+                tanggal_entry.pack(side=tk.LEFT, padx=5)
+                
+                # Function to handle adding transaction from detail view
+                def tambah_transaksi_detail():
+                    jarak = jarak_entry.get()
+                    tanggal = tanggal_entry.get_date()
+                    
+                    if jarak.strip() == "":
+                        messagebox.showerror("Error", "Jarak harus diisi!")
+                        return
+                    
+                    try:
+                        jarak = int(jarak)
+                        tanggal_str = tanggal.strftime('%Y-%m-%d')
+                        transaksi_data = f"{item_id}_{jarak}_{tanggal_str}"
+                        self.data_manager.tambah_transaksi(transaksi_data)
+                        
+                        # Clear inputs
+                        jarak_entry.delete(0, tk.END)
+                        tanggal_entry.set_date(datetime.now())
+                        
+                        # Refresh the detail view
+                        self.show_mobil_detail()
+                        messagebox.showinfo("Sukses", "Transaksi berhasil ditambahkan!")
+                        
+                    except ValueError:
+                        messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
+                
+                # Button frame
+                button_frame = tk.Frame(self.detail_frame)
+                button_frame.pack(pady=10)
+                
+                # Add transaction button
+                tambah_button = tk.Button(button_frame, text="Tambah Perjalanan", 
+                                        command=tambah_transaksi_detail)
+                tambah_button.pack(pady=10)
+                
                 # Back button
-                back_button = tk.Button(self.detail_frame, text="Kembali", command=self.show_data)
+                back_button = tk.Button(button_frame, text="Kembali", command=self.show_data)
                 back_button.pack(pady=10)
                 
                 self.hide_all_frames()
@@ -857,6 +915,7 @@ class Application(tk.Tk):
             self.show_mobil_list(f"Daftar Mobil dengan Merek {merek_name}", mobil_list)
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih merek terlebih dahulu.")
+
 
 if __name__ == "__main__":
     app = Application()
