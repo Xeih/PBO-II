@@ -811,7 +811,7 @@ class Application(tk.Tk):
         riwayat = []
         
         for transaksi_id, transaksi_data in transaksi_list.items():
-            mobil_id, jarak, tanggal = transaksi_data.split('_')
+            transaksi_id, mobil_id, jarak, tanggal = transaksi_data.split('_')
             if mobil_id == id_mobil:
                 riwayat.append({
                     'tanggal': tanggal,
@@ -840,19 +840,19 @@ class Application(tk.Tk):
         filtered_transactions = []
         
         for transaksi_id, transaksi_data in transaksi_list.items():
-            id_mobil, jarak, tanggal_str = transaksi_data.split('_')
+            transaksi_id, id_mobil, jarak, tanggal_str = transaksi_data.split('_')
             tanggal = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
             
             if start_date <= tanggal <= end_date:
                 nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
-                filtered_transactions.append((tanggal_str, nama_mobil, jarak))
+                filtered_transactions.append((transaksi_id, tanggal_str, nama_mobil, jarak))
         
         # Sort by date
         filtered_transactions.sort(reverse=True)
         
         # Display filtered results
-        for tanggal, nama_mobil, jarak in filtered_transactions:
-            self.history_tree.insert('', 'end', values=(tanggal, nama_mobil, jarak))
+        for transaksi_id, tanggal, nama_mobil, jarak in filtered_transactions:
+            self.history_tree.insert('', 'end', values=(transaksi_id, tanggal, nama_mobil, jarak))
 
         self.update_total_jarak()
 
