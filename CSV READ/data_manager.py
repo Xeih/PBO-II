@@ -109,14 +109,18 @@ class SortableTreeview(ttk.Treeview):
             
             # Ambil semua item
             items = [(self.set(item, column_id), item) for item in self.get_children('')]
-            
+
+            # Cek apakah kolom yang disort adalah ID dan konversi ke integer jika perlu
+            if column_id == 'id':  # Ganti 'id' dengan ID kolom yang sesuai
+                items = [(int(value), item) for value, item in items]  # Konversi ke integer
+
             # Sorting items
-            items.sort(reverse=self._sort_direction[column_id] == 'desc')
-            
+            items.sort(key=lambda x: x[0], reverse=self._sort_direction[column_id] == 'desc')
+
             # Reorder items di treeview
             for index, (_, item) in enumerate(items):
                 self.move(item, '', index)
-            
+                        
             # Update tampilan header untuk menunjukkan arah sorting
             for col in self['columns']:
                 if col == column_id:
