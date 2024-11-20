@@ -160,8 +160,8 @@ class Application(tk.Tk):
         self.detail_label = tk.Label(self.detail_frame, text="", font=("Helvetica", 12))
         self.detail_label.pack(pady=10)
 
-        back_button = tk.Button(self.detail_frame, text="Kembali", command=self.show_data)
-        back_button.pack(pady=10)
+        #back_button = tk.Button(self.detail_frame, text="Kembali", command=self.show_data)
+        #back_button.pack(pady=10)
 
         #EDIT FRAME
         self.edit_frame = tk.Frame(self)
@@ -207,6 +207,17 @@ class Application(tk.Tk):
         back_button.pack(pady=10)
 
         # Modifikasi bagian transaksi frame
+        # Create Tambah Transaksi frame
+        self.tambah_transaksi_frame = tk.Frame(self)
+        label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
+        label_tambah_transaksi.pack(pady=5)
+
+        tambah_button = tk.Button(self.tambah_transaksi_frame, text="Tambah Perjalanan", command=self.tambah_transaksi)
+        tambah_button.pack(pady=10)
+
+        back_button = tk.Button(self.tambah_transaksi_frame, text="Kembali", command=self.show_transaksi)
+        back_button.pack(pady=10)
+        
         label_transaksi = tk.Label(self.transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
         label_transaksi.pack(pady=5)
 
@@ -262,18 +273,6 @@ class Application(tk.Tk):
         # Add the back button at the bottom
         back_button = tk.Button(self.transaksi_history_frame, text="Kembali", command=self.show_home)
         back_button.pack(side="bottom", pady=10)
-
-        # Create Tambah Transaksi frame
-        self.tambah_transaksi_frame = tk.Frame(self)
-        label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
-        label_tambah_transaksi.pack(pady=5)
-
-        tambah_button = tk.Button(self.tambah_transaksi_frame, text="Tambah Perjalanan", command=self.tambah_transaksi)
-        tambah_button.pack(pady=10)
-
-        back_button = tk.Button(self.tambah_transaksi_frame, text="Kembali", command=self.show_transaksi)
-        back_button.pack(pady=10)
-
         
         self.total_jarak_label = tk.Label(self.transaksi_history_frame, 
                                         text="Total Jarak: 0 km", 
@@ -811,7 +810,7 @@ class Application(tk.Tk):
         riwayat = []
         
         for transaksi_id, transaksi_data in transaksi_list.items():
-            transaksi_id, mobil_id, jarak, tanggal = transaksi_data.split('_')
+            mobil_id, jarak, tanggal = transaksi_data.split('_')
             if mobil_id == id_mobil:
                 riwayat.append({
                     'tanggal': tanggal,
@@ -840,20 +839,20 @@ class Application(tk.Tk):
         filtered_transactions = []
         
         for transaksi_id, transaksi_data in transaksi_list.items():
-            transaksi_id, id_mobil, jarak, tanggal_str = transaksi_data.split('_')
+            id_mobil, jarak, tanggal_str = transaksi_data.split('_')
             tanggal = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
             
             if start_date <= tanggal <= end_date:
                 nama_mobil = self.data_manager.mobil.get_detail_mobil(id_mobil)['nama_mobil']
+                # Menambahkan transaksi_id ke dalam tuple data
                 filtered_transactions.append((transaksi_id, tanggal_str, nama_mobil, jarak))
         
-        # Sort by date
-        filtered_transactions.sort(reverse=True)
+        # Sort by date while maintaining the ID
+        filtered_transactions.sort(key=lambda x: x[1], reverse=True)
         
-        # Display filtered results
-        for transaksi_id, tanggal, nama_mobil, jarak in filtered_transactions:
-            self.history_tree.insert('', 'end', values=(transaksi_id, tanggal, nama_mobil, jarak))
-
+        # Display filtered results with row numbers
+        for idx, (transaksi_id, tanggal, nama_mobil, jarak) in enumerate(filtered_transactions, 1):
+            self.history_tree.insert('', 'end', values=(idx, tanggal, nama_mobil, jarak))
         self.update_total_jarak()
 
     def reset_date_filter(self):
@@ -915,7 +914,6 @@ class Application(tk.Tk):
             self.show_mobil_list(f"Daftar Mobil dengan Merek {merek_name}", mobil_list)
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih merek terlebih dahulu.")
-
 
 if __name__ == "__main__":
     app = Application()

@@ -110,12 +110,20 @@ class SortableTreeview(ttk.Treeview):
             # Ambil semua item
             items = [(self.set(item, column_id), item) for item in self.get_children('')]
 
-            # Cek apakah kolom yang disort adalah ID dan konversi ke integer jika perlu
-            if column_id == 'id':  # Ganti 'id' dengan ID kolom yang sesuai
-                items = [(int(value), item) for value, item in items]  # Konversi ke integer
+            # Fungsi konversi yang lebih robust untuk handling angka
+            def safe_convert(value):
+                try:
+                    # Coba konversi ke float terlebih dahulu untuk mendukung angka desimal
+                    return float(value)
+                except ValueError:
+                    # Jika tidak bisa dikonversi, kembalikan value asli
+                    return value
 
-            # Sorting items
-            items.sort(key=lambda x: x[0], reverse=self._sort_direction[column_id] == 'desc')
+            # Sorting dengan konversi yang lebih aman
+            items.sort(
+                key=lambda x: safe_convert(x[0]), 
+                reverse=self._sort_direction[column_id] == 'desc'
+            )
 
             # Reorder items di treeview
             for index, (_, item) in enumerate(items):
