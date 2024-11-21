@@ -5,6 +5,7 @@ from data_manager import DataManager, SortableTreeview
 from datetime import datetime
 from tkcalendar import DateEntry
 from PIL import Image, ImageTk
+import shutil
 
 class Application(tk.Tk):
     def __init__(self):
@@ -203,10 +204,10 @@ class Application(tk.Tk):
         self.edit_warna_option = tk.OptionMenu(self.edit_mobil_frame, self.edit_warna_var, "")
         self.edit_warna_option.pack(pady=5)
 
-        self.image_path_label = tk.Label(self.mobil_tambah_frame, text="Belum ada gambar dipilih")
+        self.image_path_label = tk.Label(self.edit_mobil_frame, text="Belum ada gambar dipilih")
         self.image_path_label.pack(pady=10)
 
-        upload_btn = tk.Button(self.mobil_tambah_frame, text="Upload Gambar", 
+        upload_btn = tk.Button(self.edit_mobil_frame, text="Upload Gambar", 
                                command=self.upload_image)
         upload_btn.pack(pady=5)
         
@@ -345,12 +346,18 @@ class Application(tk.Tk):
     
     def upload_image(self):
         # Memilih gambar dari file explorer
-        file_path = filedialog.askopenfilename(
-            filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif *.bmp")]
-        )
-        if file_path:
-            self.selected_image_path = file_path
-            self.image_path_label.config(text=f"Gambar: {file_path.split('/')[-1]}")
+        "open an imgae"    
+        try:   
+            file_path = filedialog.askopenfilename(initialdir= "",filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif *.bmp")])
+            if file_path:
+                self.selected_image_path = file_path
+                self.image_path_label.config(text=f"Gambar: {file_path.split('/')[-1]}")
+                print (file_path)
+                shutil.copy2(file_path, f".\simpan\\{self.current_edit_id}.jpeg")
+                return file_path
+        
+        except FileNotFoundError:
+            messagebox.showerror("Unfound file", "The selected file was not found.")
 
     def show_home(self):
         self.hide_all_frames()
