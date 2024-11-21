@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from tkinter import Canvas,ttk
 from data_manager import DataManager, SortableTreeview
 from datetime import datetime
 from tkcalendar import DateEntry
+from PIL import Image, ImageTk
 
 class Application(tk.Tk):
     def __init__(self):
@@ -149,6 +150,13 @@ class Application(tk.Tk):
         
         self.warna_option = tk.OptionMenu(self.mobil_tambah_frame, self.warna_var, *self.data_manager.list_data('warna').keys())
         self.warna_option.pack(pady=5)
+
+        self.image_path_label = tk.Label(self.mobil_tambah_frame, text="Belum ada gambar dipilih")
+        self.image_path_label.pack(pady=10)
+
+        upload_btn = tk.Button(self.mobil_tambah_frame, text="Upload Gambar", 
+                               command=self.upload_image)
+        upload_btn.pack(pady=5)
         
         tambah_button = tk.Button(self.mobil_tambah_frame, text="Tambah Mobil", command=self.tambah_mobil)
         tambah_button.pack(pady=10)
@@ -199,6 +207,7 @@ class Application(tk.Tk):
         
         self.edit_warna_option = tk.OptionMenu(self.edit_mobil_frame, self.edit_warna_var, "")
         self.edit_warna_option.pack(pady=5)
+
         
         save_button = tk.Button(self.edit_mobil_frame, text="Simpan", command=self.save_edit_mobil)
         save_button.pack(pady=10)
@@ -332,6 +341,15 @@ class Application(tk.Tk):
         self.home_history_tree.column('Jarak', width=100,anchor='center')
 
         self.home_history_tree.pack(pady=10)
+    
+    def upload_image(self):
+        # Memilih gambar dari file explorer
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif *.bmp")]
+        )
+        if file_path:
+            self.selected_image_path = file_path
+            self.image_path_label.config(text=f"Gambar: {file_path.split('/')[-1]}")
 
     def show_home(self):
         self.hide_all_frames()
@@ -460,7 +478,7 @@ class Application(tk.Tk):
     def tambah_mobil(self):
         nama_mobil = self.nama_mobil_entry.get()
         if nama_mobil.strip() == "" or not hasattr(self, 'selected_merek_id') or not hasattr(self, 'selected_warna_id'):
-            messagebox.showerror("Error", "Nama mobil, merek, dan warna tidak boleh kosong!")
+            messagebox.showerror("Error", "Nama mobil, merek, warna, dan gambar tidak boleh kosong!")
         else:
             try:
                 result = self.data_manager.tambah_mobil(nama_mobil, self.selected_merek_id, self.selected_warna_id)
@@ -785,9 +803,16 @@ class Application(tk.Tk):
                     except ValueError:
                         messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
                 
+    
                 # Button frame
                 button_frame = tk.Frame(self.detail_frame)
                 button_frame.pack(pady=10)
+
+                
+                
+                
+                    
+                    
                 
                 # Add transaction button
                 tambah_button = tk.Button(button_frame, text="Tambah Perjalanan", 
@@ -798,10 +823,18 @@ class Application(tk.Tk):
                 back_button = tk.Button(button_frame, text="Kembali", command=self.show_data)
                 back_button.pack(pady=10)
                 
+                #image = Image.open(details['gambar'])
+                #image.thumbnail((300, 300))
+                #photo = ImageTk.PhotoImage(image)
+
+                #image_label = tk.Label(self.mobil_tambah_frame, image=photo)
+                #image_label.image = photo  # Simpan referensi untuk mencegah garbage collection
+                #image_label.pack(pady=10)
+                
                 self.hide_all_frames()
                 self.detail_frame.pack()
-            else:
-                messagebox.showerror("Error", "Detail mobil tidak ditemukan.")
+
+                
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih mobil yang ingin dilihat detailnya.")
 

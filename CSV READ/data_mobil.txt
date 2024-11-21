@@ -4,3 +4,5 @@ ID_NAMA_MOBIL
 3:Panther:3:3
 4:Porsche 911 GT3 RS:4:4
 5:F30:5:4
+6:Civic:1:1
+7:911:4:1
