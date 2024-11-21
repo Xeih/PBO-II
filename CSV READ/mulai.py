@@ -816,12 +816,6 @@ class Application(tk.Tk):
                 button_frame = tk.Frame(self.detail_frame)
                 button_frame.pack(pady=10)
 
-                
-                
-                
-                    
-                    
-                
                 # Add transaction button
                 tambah_button = tk.Button(button_frame, text="Tambah Perjalanan", 
                                         command=tambah_transaksi_detail)
@@ -831,13 +825,16 @@ class Application(tk.Tk):
                 back_button = tk.Button(button_frame, text="Kembali", command=self.show_data)
                 back_button.pack(pady=10)
                 
-                #image = Image.open(details['gambar'])
-                #image.thumbnail((300, 300))
-                #photo = ImageTk.PhotoImage(image)
+                # Create Label first
+                display = tk.Label(self.detail_frame)
+                display.pack()
 
-                #image_label = tk.Label(self.mobil_tambah_frame, image=photo)
-                #image_label.image = photo  # Simpan referensi untuk mencegah garbage collection
-                #image_label.pack(pady=10)
+                # Image processing
+                img = Image.open(f"./simpan/{item_id}.jpeg")
+                img.thumbnail((150,150))
+                img2 = ImageTk.PhotoImage(img)
+                display.config(image=img2)
+                display.image = img2
                 
                 self.hide_all_frames()
                 self.detail_frame.pack()
