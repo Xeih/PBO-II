@@ -151,12 +151,7 @@ class Application(tk.Tk):
         self.warna_option = tk.OptionMenu(self.mobil_tambah_frame, self.warna_var, *self.data_manager.list_data('warna').keys())
         self.warna_option.pack(pady=5)
 
-        self.image_path_label = tk.Label(self.mobil_tambah_frame, text="Belum ada gambar dipilih")
-        self.image_path_label.pack(pady=10)
-
-        upload_btn = tk.Button(self.mobil_tambah_frame, text="Upload Gambar", 
-                               command=self.upload_image)
-        upload_btn.pack(pady=5)
+        
         
         tambah_button = tk.Button(self.mobil_tambah_frame, text="Tambah Mobil", command=self.tambah_mobil)
         tambah_button.pack(pady=10)
@@ -208,6 +203,12 @@ class Application(tk.Tk):
         self.edit_warna_option = tk.OptionMenu(self.edit_mobil_frame, self.edit_warna_var, "")
         self.edit_warna_option.pack(pady=5)
 
+        self.image_path_label = tk.Label(self.mobil_tambah_frame, text="Belum ada gambar dipilih")
+        self.image_path_label.pack(pady=10)
+
+        upload_btn = tk.Button(self.mobil_tambah_frame, text="Upload Gambar", 
+                               command=self.upload_image)
+        upload_btn.pack(pady=5)
         
         save_button = tk.Button(self.edit_mobil_frame, text="Simpan", command=self.save_edit_mobil)
         save_button.pack(pady=10)
