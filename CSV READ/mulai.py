@@ -1,16 +1,17 @@
 import tkinter as tk
 from tkinter import messagebox, filedialog
 from tkinter import Canvas,ttk
-from data_manager import DataManager, SortableTreeview
+from data_manager import DataManager, SortableTreeview, LineGraphFrame
 from datetime import datetime
 from tkcalendar import DateEntry
 from PIL import Image, ImageTk
+import shutil
 
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Data Mobil")
-        self.geometry("500x600")
+        self.geometry("700x900")
         self.data_manager = DataManager()
         self.current_data_type = 'warna'
 
@@ -31,6 +32,7 @@ class Application(tk.Tk):
         self.transaksi_history_frame = tk.Frame(self)
         self.view_mobil_warna_frame = tk.Frame(self)
         self.view_mobil_merk_frame = tk.Frame(self)
+        self.graph_frame = tk.Frame(self)
 
     def create_widgets(self):
         # Home frame widgets
@@ -57,6 +59,9 @@ class Application(tk.Tk):
         # Create a frame to contain the Treeview and scrollbar
         tree_frame = tk.Frame(self.transaksi_history_frame)
         tree_frame.pack(pady=10, fill="both", expand=True)
+
+        self.line_graph = LineGraphFrame(self.home_frame, self.data_manager)
+        self.line_graph.pack(pady=15)
 
         # Data frames (mobil, warna, merk)
         for frame, title in [(self.mobil_frame, "List Mobil"), (self.warna_frame, "List Warna"), (self.merk_frame, "List Merk")]:
@@ -203,10 +208,10 @@ class Application(tk.Tk):
         self.edit_warna_option = tk.OptionMenu(self.edit_mobil_frame, self.edit_warna_var, "")
         self.edit_warna_option.pack(pady=5)
 
-        self.image_path_label = tk.Label(self.mobil_tambah_frame, text="Belum ada gambar dipilih")
+        self.image_path_label = tk.Label(self.edit_mobil_frame, text="Belum ada gambar dipilih")
         self.image_path_label.pack(pady=10)
 
-        upload_btn = tk.Button(self.mobil_tambah_frame, text="Upload Gambar", 
+        upload_btn = tk.Button(self.edit_mobil_frame, text="Upload Gambar", 
                                command=self.upload_image)
         upload_btn.pack(pady=5)
         
@@ -216,8 +221,7 @@ class Application(tk.Tk):
         back_button = tk.Button(self.edit_mobil_frame, text="Kembali", command=self.show_data)
         back_button.pack(pady=10)
 
-        # Modifikasi bagian transaksi frame
-        # Create Tambah Transaksi frame
+        # TAMBAH TRANSAKSI FRAME
         self.tambah_transaksi_frame = tk.Frame(self)
         label_tambah_transaksi = tk.Label(self.tambah_transaksi_frame, text="Tambah Perjalanan", font=("Helvetica", 12))
         label_tambah_transaksi.pack(pady=5)
@@ -257,7 +261,7 @@ class Application(tk.Tk):
         back_button = tk.Button(self.transaksi_frame, text="Kembali", command=self.show_transaksi_history)
         back_button.pack(pady=10)
 
-        # Create a frame to contain the Treeview and scrollbar
+        # TABEL PERJALANAN FRAME
         tree_frame = tk.Frame(self.transaksi_history_frame)
         tree_frame.pack(pady=10, fill="both", expand=True)
 
@@ -288,6 +292,11 @@ class Application(tk.Tk):
                                         text="Total Jarak: 0 km", 
                                         font=("Helvetica", 10, "bold"))
         self.total_jarak_label.pack(pady=5)
+
+        self.mobil_terbanyak_label = tk.Label(self.transaksi_history_frame, 
+                                        text="", 
+                                        font=("Helvetica", 10, "bold"))
+        self.mobil_terbanyak_label.pack(pady=5)
 
         #fiter frame
         filter_frame = tk.Frame(self.transaksi_history_frame)
@@ -320,10 +329,10 @@ class Application(tk.Tk):
         tambah_button = tk.Button(self.transaksi_history_frame, text="Tambah Perjalanan", command=self.show_transaksi)
         tambah_button.pack(pady=10)
 
-        # Tambahkan label untuk history
+        # HOME HISTORY
         history_label = tk.Label(self.home_frame, text="History Transaksi Terakhir:", 
                                 font=("Helvetica", 12, 'bold'))
-        history_label.pack(pady=10, side=tk.TOP)
+        history_label.pack(pady=5, side=tk.TOP)
 
         # Buat Treeview untuk history di home frame
         self.home_history_tree = ttk.Treeview(self.home_frame, 
@@ -342,20 +351,28 @@ class Application(tk.Tk):
         self.home_history_tree.column('Jarak', width=100,anchor='center')
 
         self.home_history_tree.pack(pady=10)
-    
+
     def upload_image(self):
         # Memilih gambar dari file explorer
-        file_path = filedialog.askopenfilename(
-            filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif *.bmp")]
-        )
-        if file_path:
-            self.selected_image_path = file_path
-            self.image_path_label.config(text=f"Gambar: {file_path.split('/')[-1]}")
+        "open an imgae"    
+        try:   
+            file_path = filedialog.askopenfilename(initialdir= "",filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif *.bmp")])
+            if file_path:
+                self.selected_image_path = file_path
+                self.image_path_label.config(text=f"Gambar: {file_path.split('/')[-1]}")
+                print (file_path)
+                shutil.copy2(file_path, f".\simpan\\{self.current_edit_id}.jpeg")
+                return file_path
+        
+        except FileNotFoundError:
+            messagebox.showerror("Unfound file", "The selected file was not found.")
 
     def show_home(self):
         self.hide_all_frames()
         self.home_frame.pack()
         self.update_home_history()
+        self.line_graph.pack()
+        self.refresh_graph()
 
     def show_data(self, data_type=None):
         self.hide_all_frames()
@@ -426,7 +443,7 @@ class Application(tk.Tk):
                     self.merk_frame, self.warna_tambah_frame, 
                     self.merk_tambah_frame, self.mobil_tambah_frame, 
                     self.detail_frame, self.edit_frame, self.edit_mobil_frame, 
-                    self.transaksi_frame, getattr(self, 'result_frame', None), self.transaksi_history_frame):
+                    self.transaksi_frame, getattr(self, 'result_frame', None), self.transaksi_history_frame, self.line_graph):
             if frame:
                 frame.pack_forget()
 
@@ -634,6 +651,7 @@ class Application(tk.Tk):
             self.history_tree.insert('', 'end', values=(transaksi_id, tanggal, nama_mobil, jarak))  # Menambahkan transaksi_id ke values
 
         self.update_total_jarak()
+        self.update_mobil_digunakan()
 
     def update_total_jarak(self):
         total_jarak = 0
@@ -644,6 +662,26 @@ class Application(tk.Tk):
         
         # Update label total jarak
         self.total_jarak_label.config(text=f"Total Jarak: {total_jarak:.1f} km")
+
+    def update_mobil_digunakan(self):
+        # Dictionary untuk menyimpan frekuensi penggunaan setiap mobil
+        mobil_count = {}
+        count = 0
+        itm = None
+        # Hitung frekuensi penggunaan setiap mobil
+        for item in self.history_tree.get_children():
+            # Ambil nilai mobil dari history tree
+            mobil = self.history_tree.item(item)['values'][2]  # Sesuaikan index dengan kolom mobil
+            mobil_count[mobil] = mobil_count.get(mobil, 0) + 1
+            # Update mobil dengan penggunaan terbanyak
+            if mobil_count[mobil] > count:
+                count = mobil_count[mobil]
+                itm = mobil
+        # Jika ada data yang ditemukan
+        if itm is not None:
+            self.mobil_terbanyak_label.config(text=f"Paling Banyak Digunakan: {itm} ({count} kali)")
+        else:
+            self.mobil_terbanyak_label.config(text="Belum ada data penggunaan mobil")
 
     def update_home_history(self):
         # Bersihkan data lama
@@ -703,6 +741,7 @@ class Application(tk.Tk):
                     self.show_mobil_detail()
             except ValueError:
                 messagebox.showerror("Error", "Format jarak tidak valid! Pastikan jarak adalah angka.")
+        self.refresh_graph()
 
 
     def hitung_total_jarak(self, id_mobil):
@@ -728,19 +767,37 @@ class Application(tk.Tk):
                 for widget in self.detail_frame.winfo_children():
                     widget.destroy()
                 
+                # Create Label first
+                display = tk.Label(self.detail_frame)
+                display.pack(pady=10)
+
+                # Image processing
+                try:
+                    img = Image.open(f"./simpan/{item_id}.jpeg")
+                    img.thumbnail((200,200))
+                    img2 = ImageTk.PhotoImage(img)
+                    display.config(image=img2)
+                    display.image = img2
+                except:
+                    img = Image.open(f"./simpan/default.jpeg")
+                    img.thumbnail((200,200))
+                    img2 = ImageTk.PhotoImage(img)
+                    display.config(image=img2)
+                    display.image = img2
+
                 # Informasi dasar
                 total_jarak = self.hitung_total_jarak(item_id)
-                detail_text = (f"\nNama Mobil\t: {details['nama_mobil']}"
+                detail_text = (f"Nama Mobil\t: {details['nama_mobil']}"
                             f"\nMerek\t\t: {details['merek']}"
                             f"\nWarna\t\t: {details['warna']}"
                             f"\nTotal Jarak\t: {total_jarak} km")
                 
                 detail_label = tk.Label(self.detail_frame, text=detail_text, justify="left")
-                detail_label.pack(pady=10)
+                detail_label.pack(pady=5)
                 
                 # Tabel riwayat transaksi
                 history_label = tk.Label(self.detail_frame, text="Riwayat Penggunaan:", font=("Helvetica", 10, "bold"))
-                history_label.pack(pady=5)
+                history_label.pack(pady=10)
                 
                 # Create Treeview
                 detail_tree = SortableTreeview(self.detail_frame, columns=('Tanggal', 'Jarak'), show='headings', height=5)
@@ -809,12 +866,6 @@ class Application(tk.Tk):
                 button_frame = tk.Frame(self.detail_frame)
                 button_frame.pack(pady=10)
 
-                
-                
-                
-                    
-                    
-                
                 # Add transaction button
                 tambah_button = tk.Button(button_frame, text="Tambah Perjalanan", 
                                         command=tambah_transaksi_detail)
@@ -822,20 +873,10 @@ class Application(tk.Tk):
                 
                 # Back button
                 back_button = tk.Button(button_frame, text="Kembali", command=self.show_data)
-                back_button.pack(pady=10)
-                
-                #image = Image.open(details['gambar'])
-                #image.thumbnail((300, 300))
-                #photo = ImageTk.PhotoImage(image)
-
-                #image_label = tk.Label(self.mobil_tambah_frame, image=photo)
-                #image_label.image = photo  # Simpan referensi untuk mencegah garbage collection
-                #image_label.pack(pady=10)
+                back_button.pack(pady=10)                    
                 
                 self.hide_all_frames()
                 self.detail_frame.pack()
-
-                
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih mobil yang ingin dilihat detailnya.")
 
@@ -888,6 +929,7 @@ class Application(tk.Tk):
         for idx, (transaksi_id, tanggal, nama_mobil, jarak) in enumerate(filtered_transactions, 1):
             self.history_tree.insert('', 'end', values=(idx, tanggal, nama_mobil, jarak))
         self.update_total_jarak()
+        self.update_mobil_digunakan()
 
     def reset_date_filter(self):
         # Reset date entries to current date
@@ -948,6 +990,10 @@ class Application(tk.Tk):
             self.show_mobil_list(f"Daftar Mobil dengan Merek {merek_name}", mobil_list)
         else:
             messagebox.showwarning("Peringatan", "Silakan pilih merek terlebih dahulu.")
+
+    def refresh_graph(self):
+        """Method to refresh the graph when data changes"""
+        self.line_graph.refresh()
 
 if __name__ == "__main__":
     app = Application()
