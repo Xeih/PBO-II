@@ -184,3 +184,21 @@ class Transaksi(DataItem):
                 'tanggal': tanggal
             }
         return None
+
+    def hapus_transaksi_by_mobil(self, id_mobil):
+            # Ambil semua transaksi
+            transaksi_dict = self.list_transaksi()
+            # Buat daftar id_transaksi yang akan dihapus
+            transaksi_to_delete = []
+
+            # Periksa setiap transaksi untuk melihat apakah id_mobil terkait
+            for id_transaksi, data in transaksi_dict.items():
+                id_mobil_transaksi, _, _ = data.split('_')
+                if id_mobil_transaksi == id_mobil:
+                    transaksi_to_delete.append(id_transaksi)
+
+            # Hapus setiap transaksi yang terkait
+            for id_transaksi in transaksi_to_delete:
+                self.hapus_transaksi(id_transaksi)
+
+            return len(transaksi_to_delete)  # Mengembalikan jumlah transaksi yang dihapus

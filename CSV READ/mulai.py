@@ -517,18 +517,39 @@ class Application(tk.Tk):
 
     def delete_action(self, data_type):
         listbox = self.warna_frame.winfo_children()[1] if data_type == 'warna' else \
-                  self.merk_frame.winfo_children()[1] if data_type == 'merek' else \
-                  self.mobil_frame.winfo_children()[1]
+                self.merk_frame.winfo_children()[1] if data_type == 'merek' else \
+                self.mobil_frame.winfo_children()[1]
+        
         selected_indices = listbox.curselection()
         if selected_indices:
             index = selected_indices[0]
             selected_item = listbox.get(index)
             parts = selected_item.split(":", 1)
+            
             if len(parts) == 2:
                 item_id, item_name = parts
                 item_id = item_id.strip()
                 item_name = item_name.strip()
-                self.show_confirm_dialog(data_type, item_id, item_name)
+                
+                # Special handling for deleting a car (mobil)
+                if data_type == 'mobil':
+                    # Ask for confirmation about deleting the car
+                    confirm = messagebox.askyesno("Konfirmasi", 
+                        f"Apakah Anda yakin ingin menghapus mobil {item_name}?")
+                    
+                    if confirm:
+                        # Delete transactions related to this car
+                        deleted_transactions = self.data_manager.transaksi.hapus_transaksi_by_mobil(item_id)
+                        
+                        # Confirm transaction deletion
+                        messagebox.showinfo("Informasi", 
+                            f"{deleted_transactions} transaksi terkait mobil telah dihapus.")
+                        
+                        # Proceed with deleting the car
+                        self.show_confirm_dialog(data_type, item_id, item_name)
+                else:
+                    # Standard deletion for other data types
+                    self.show_confirm_dialog(data_type, item_id, item_name)
             else:
                 messagebox.showwarning("Peringatan", f"Format data {data_type} tidak sesuai.")
         else:

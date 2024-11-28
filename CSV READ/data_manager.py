@@ -85,6 +85,10 @@ class DataManager:
                 mobil_list.append((id_mobil, nama_mobil))
         return mobil_list
     
+    def hapus_transaksi_by_mobil(self, mobil_id):
+        # Hapus semua transaksi yang terkait dengan mobil_id
+        self.transaksi_data = [transaksi for transaksi in self.transaksi_data if transaksi['mobil_id'] != mobil_id]
+    
 # First, make sure to include the SortableTreeview class definition at the top of your file
 class SortableTreeview(ttk.Treeview):
     def __init__(self, master, **kwargs):
@@ -167,7 +171,7 @@ class LineGraphFrame(tk.Frame):
             date_str = transaction_data.split('_')[-1]
             date = datetime.strptime(date_str, '%Y-%m-%d')
             month = date.month
-            monthly_transactions[month] += 1
+            monthly_transactions[month] += 1 *int(transaction_data.split('_')[1])
         
         return sorted(monthly_transactions.items())
         
@@ -184,6 +188,7 @@ class LineGraphFrame(tk.Frame):
         max_transactions = max(count for _, count in self.data) if self.data else 1
         x_scale = width / (len(self.data) + 1)
         y_scale = height / (max_transactions + 1)
+        y_skala = height /5
         
         #Gambar sumbu dengan ukuran yang lebih tipis
         self.canvas.create_line(x_offset, y_offset, x_offset + width, y_offset, width=1)
@@ -192,8 +197,8 @@ class LineGraphFrame(tk.Frame):
         #Label sumbu dengan font yang lebih kecil
         self.canvas.create_text(width//2 + x_offset, y_offset + 20, 
                               text="Bulan", font=("Arial", 7, 'bold'))
-        self.canvas.create_text(x_offset - 20, y_offset - height//2,
-                              text="Jumlah Transaksi", font=("Arial", 7, 'bold'), angle=90)
+        self.canvas.create_text(x_offset - 30, y_offset - height//2,
+                              text="Total Jarak", font=("Arial", 7, 'bold'), angle=90)
         
         #Dictionary nama bulan
         month_names = {
@@ -202,11 +207,16 @@ class LineGraphFrame(tk.Frame):
         }
         
         #Grid dan label sumbu y yang lebih tipis
-        for i in range(max_transactions + 1):
-            y = y_offset - i * y_scale
+        ii=0
+        maxii = 4
+        while ii < maxii:
+            ii=ii+1
+        #for i in range(max_transactions + 1):
+            y = y_offset - ii * y_skala
+            hitungan_kiri = round(max_transactions /5)
             self.canvas.create_line(x_offset, y, x_offset + width, y, 
                                   fill="lightgray", dash=(1, 3))
-            self.canvas.create_text(x_offset - 5, y, text=str(i), 
+            self.canvas.create_text(x_offset - 5, y, text=str(ii * hitungan_kiri), 
                                   anchor="e", font=("Arial", 6))
         
         #Gambar data dengan ukuran yang lebih kecil
