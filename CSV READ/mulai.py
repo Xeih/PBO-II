@@ -515,67 +515,64 @@ class Application(tk.Tk):
             except ValueError as e:
                 messagebox.showerror("Error", str(e))
 
+    def show_confirm_dialog(self, data_type, item_id, item_name):
+        confirm_window = tk.Toplevel(self)
+        confirm_window.title("Konfirmasi Hapus")
+        confirm_window.geometry("300x150")
+
+        label = tk.Label(confirm_window, text=f"Apakah Anda yakin ingin menghapus {data_type} {item_name}?", wraplength=250)
+        label.pack(pady=20)
+
+        yes_button = tk.Button(
+            confirm_window,
+            text="Yes",
+            command=lambda: self.delete_item(confirm_window, data_type, item_id, item_name)
+        )
+        yes_button.pack(side=tk.LEFT, padx=20, pady=20)
+
+        no_button = tk.Button(confirm_window, text="No", command=confirm_window.destroy)
+        no_button.pack(side=tk.RIGHT, padx=20, pady=20)
+
     def delete_action(self, data_type):
         listbox = self.warna_frame.winfo_children()[1] if data_type == 'warna' else \
                 self.merk_frame.winfo_children()[1] if data_type == 'merek' else \
                 self.mobil_frame.winfo_children()[1]
-        
+
         selected_indices = listbox.curselection()
         if selected_indices:
             index = selected_indices[0]
             selected_item = listbox.get(index)
             parts = selected_item.split(":", 1)
-            
+
             if len(parts) == 2:
                 item_id, item_name = parts
                 item_id = item_id.strip()
                 item_name = item_name.strip()
-                
-                # Special handling for deleting a car (mobil)
+
                 if data_type == 'mobil':
-                    # Ask for confirmation about deleting the car
-                    confirm = messagebox.askyesno("Konfirmasi", 
-                        f"Apakah Anda yakin ingin menghapus mobil {item_name}?")
-                    
-                    if confirm:
-                        # Delete transactions related to this car
-                        deleted_transactions = self.data_manager.transaksi.hapus_transaksi_by_mobil(item_id)
-                        
-                        # Confirm transaction deletion
-                        messagebox.showinfo("Informasi", 
-                            f"{deleted_transactions} transaksi terkait mobil telah dihapus.")
-                        
-                        # Proceed with deleting the car
-                        self.show_confirm_dialog(data_type, item_id, item_name)
+                    # Menampilkan dialog konfirmasi untuk penghapusan mobil
+                    self.show_confirm_dialog(data_type, item_id, item_name)
                 else:
-                    # Standard deletion for other data types
+                    # Penghapusan langsung untuk jenis data lain
                     self.show_confirm_dialog(data_type, item_id, item_name)
             else:
                 messagebox.showwarning("Peringatan", f"Format data {data_type} tidak sesuai.")
         else:
             messagebox.showwarning("Peringatan", f"Silakan pilih {data_type} yang ingin dihapus.")
 
-    def show_confirm_dialog(self, data_type, item_id, item_name):
-        confirm_window = tk.Toplevel(self)
-        confirm_window.title("Konfirmasi Hapus")
-        confirm_window.geometry("300x150")
-        
-        label = tk.Label(confirm_window, text=f"Apakah Anda yakin ingin menghapus {data_type} {item_name}?", wraplength=250)
-        label.pack(pady=20)
-        
-        yes_button = tk.Button(confirm_window, text="Yes", command=lambda: self.delete_item(confirm_window, data_type, item_id, item_name))
-        yes_button.pack(side=tk.LEFT, padx=20, pady=20)
-        
-        no_button = tk.Button(confirm_window, text="No", command=confirm_window.destroy)
-        no_button.pack(side=tk.RIGHT, padx=20, pady=20),
-
     def delete_item(self, confirm_window, data_type, item_id, item_name):
+        confirm_window.destroy()
+
+        if data_type == 'mobil':
+            # Menghapus transaksi terkait hanya setelah konfirmasi
+            self.data_manager.transaksi.hapus_transaksi_by_mobil(item_id)
+
+        # Menghapus item dari data utama
         if self.data_manager.delete_data(data_type, item_id):
-            confirm_window.destroy()
+            messagebox.showinfo("Informasi", f"{data_type} {item_name} berhasil dihapus.")
             self.update_listbox(data_type)
-            messagebox.showinfo("Sukses", f"{data_type.capitalize()} {item_name} berhasil dihapus!")
         else:
-            messagebox.showerror("Error", f"Gagal menghapus {data_type} {item_name}.")
+            messagebox.showerror("Kesalahan", f"Gagal menghapus {data_type} {item_name}.")
 
     def show_edit_dialog(self, frame):
         listbox = frame.winfo_children()[1]
