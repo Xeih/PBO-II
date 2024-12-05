@@ -171,7 +171,7 @@ class LineGraphFrame(tk.Frame):
             date_str = transaction_data.split('_')[-1]
             date = datetime.strptime(date_str, '%Y-%m-%d')
             month = date.month
-            monthly_transactions[month] += 1 *int(transaction_data.split('_')[1])
+            monthly_transactions[month] += 1 *int(transaction_data.split('_')[1])/int(len(transaction_data))
         
         return sorted(monthly_transactions.items())
         
@@ -198,7 +198,7 @@ class LineGraphFrame(tk.Frame):
         self.canvas.create_text(width//2 + x_offset, y_offset + 20, 
                               text="Bulan", font=("Arial", 7, 'bold'))
         self.canvas.create_text(x_offset - 30, y_offset - height//2,
-                              text="Total Jarak", font=("Arial", 7, 'bold'), angle=90)
+                              text="Rata - Rata Jarak", font=("Arial", 7, 'bold'), angle=90)
         
         #Dictionary nama bulan
         month_names = {
