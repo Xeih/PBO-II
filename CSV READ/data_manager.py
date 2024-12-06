@@ -4,6 +4,7 @@ from tkinter import ttk
 from typing import Any, Union, Tuple
 from collections import defaultdict
 from datetime import datetime
+import math
 
 class DataManager:
     def __init__(self):
@@ -172,6 +173,8 @@ class LineGraphFrame(tk.Frame):
             date = datetime.strptime(date_str, '%Y-%m-%d')
             month = date.month
             monthly_transactions[month] += 1 *int(transaction_data.split('_')[1])/int(len(transaction_data))
+            for kunci in monthly_transactions:
+                monthly_transactions[kunci]=math.ceil(monthly_transactions[kunci])
         
         return sorted(monthly_transactions.items())
         
